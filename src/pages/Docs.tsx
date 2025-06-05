@@ -34,7 +34,7 @@ const Docs = () => {
       <div className="container mx-auto px-4 py-6">
         {/* Header */}
         <div className="flex items-center space-x-4 mb-8">
-          <Link to="/">
+          <Link to="/NOTED/">
             <Button variant="ghost" size="icon" className="glass">
               <ArrowLeft className="h-4 w-4" />
             </Button>
