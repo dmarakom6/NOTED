@@ -11,4 +11,6 @@ export default defineConfig({
             '@': pathResolver('src'), // Adjust 'src' if your source folder is named differently
         },
     },
+    build: {
+        outDir: pathResolver('dist')},
 });
