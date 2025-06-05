@@ -8,9 +8,10 @@ export default defineConfig({
     plugins: [react()],
     resolve: {
         alias: {
-            '@': pathResolver('src'), // Adjust 'src' if your source folder is named differently
+            '@': pathResolver('src'), 
         },
     },
     build: {
         outDir: pathResolver('dist')},
+        base: '/NOTED/',
 });
