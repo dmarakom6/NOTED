@@ -15,10 +15,10 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <BrowserRouter>
+      <BrowserRouter basename="/NOTED/">
         <Routes>
-          <Route path="/NOTED/" element={<Index />} />
-          <Route path="/NOTED/docs" element={<Docs />} />
+          <Route path="/" element={<Index />} />
+          <Route path="/docs" element={<Docs />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

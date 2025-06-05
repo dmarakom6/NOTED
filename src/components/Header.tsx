@@ -32,7 +32,7 @@ export const Header = ({ onFocusMode, notes, tasks }: HeaderProps) => {
           
           {/* Buttons - always centered */}
           <div className="flex items-center space-x-1 sm:space-x-3 flex-shrink-0">
-            <Link to="/NOTED/docs">
+            <Link to="/docs">
               <Button variant="outline" className="glass text-xs sm:text-sm whitespace-nowrap px-2 sm:px-4 h-8 sm:h-10">
                 <BookOpen className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
                 <span className="hidden sm:inline">Docs</span>
