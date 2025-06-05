@@ -8,10 +8,11 @@ export default defineConfig({
     plugins: [react()],
     resolve: {
         alias: {
-            '@': pathResolver('src'), 
+            '@': pathResolver('src'),
         },
     },
     build: {
-        outDir: pathResolver('dist')},
-        base: '/NOTED/',
+        outDir: 'dist',
+    },
+    base: '/NOTED/', 
 });
