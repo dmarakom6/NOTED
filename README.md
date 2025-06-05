@@ -1,2 +1,0 @@
-# NOTED.
-Your productivity companion
