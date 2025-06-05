@@ -1,18 +1,9 @@
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
-import { resolve } from 'path';
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react-swc'
 
-export const pathResolver = (p: string) => resolve(__dirname, '.', p);
-
+// https://vite.dev/config/
 export default defineConfig({
-    plugins: [react()],
-    resolve: {
-        alias: {
-            '@': pathResolver('src'),
-        },
-    },
-    build: {
-        outDir: 'dist',
-    },
-    base: '/NOTED/', 
-});
+  plugins: [react()],
+  publicDir: 'public',
+  base: "/kanto/"
+})
