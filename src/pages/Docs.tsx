@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, BookOpen, Users, MessageCircle, ChevronRight, ArrowRight } from "lucide-react";
+import { ArrowLeft, BookOpen, Users, MessageCircle, ChevronRight, ArrowRight, NotepadText } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Support } from "@/components/Support";
 import { Share } from "lucide-react";
@@ -407,12 +407,8 @@ const Docs = () => {
         {/* Footer */}
         <div className="mt-12 flex items-center justify-center space-x-6 text-sm text-muted-foreground">
           <div className="flex items-center space-x-2">
-            <Users className="h-4 w-4" />
-            <span>Community</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <MessageCircle className="h-4 w-4" />
-            <span>Support</span>
+            <NotepadText className="h-4 w-4" />
+            <span className="font-bold text-neon-purple">NOTED.</span>
           </div>
         </div>
       </div>
