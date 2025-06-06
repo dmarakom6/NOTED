@@ -12,13 +12,13 @@ export const Support = () => {
     {
       name: "GitHub Profile",
       icon: Github,
-      url: "https://github.com/yourusername", // Replace with your GitHub
+      url: "https://github.com/dmarakom6",
       description: "Follow my work"
     },
     {
-      name: "Twitter",
+      name: "Twitter (X)",
       icon: Twitter,
-      url: "https://twitter.com/yourusername", // Replace with your Twitter
+      url: "https://x.com/dimitrismarako",
       description: "Stay updated"
     }
   ];
@@ -27,19 +27,19 @@ export const Support = () => {
     {
       name: "Buy me a coffee",
       icon: Coffee,
-      url: "https://buymeacoffee.com/yourusername", // Replace with your Buy Me a Coffee
+      url: "https://buymeacoffee.com/dimitrismarako",
       description: "Support development",
       highlight: true
     },
     {
       name: "GitHub Sponsors",
       icon: Heart,
-      url: "https://github.com/sponsors/yourusername", // Replace with your GitHub Sponsors
+      url: "https://github.com/sponsors/dmarakom6",
       description: "Monthly support"
     }
   ];
 
-  const projectUrl = "https://github.com/yourusername/noted"; // Replace with your repo
+  const projectUrl = "https://github.com/dmarakom6/NOTED.";
 
   return (
     <Popover>
