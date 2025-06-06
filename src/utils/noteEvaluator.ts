@@ -1,4 +1,5 @@
 import { log } from "console";
+import { useState } from "react";
 
 // ASCII to Unicode emoji mapping
 const emojiMap: Record<string, string> = {
@@ -216,7 +217,7 @@ const processModules = async (text: string, noteColor: string): Promise<string> 
   const clientInfo = getClientInfo();
   const now = new Date();
 
-  const modules: Record<string,  any> = {
+  const modules: Record<string,  string> = {
     'Weather.temp': weather.temp,
     'Weather.uv': `UV Index: ${weather.uv}`,
     'Time.day': now.toLocaleDateString('en-US', { weekday: 'long' }),
@@ -273,17 +274,36 @@ const processJavaScript = (text: string): string => {
   return text;
 }
 
-export const evaluateNoteContent = async (content: string | undefined, noteColor: string): Promise<string> => {
+const processMemorize = (textRaw: string): [string, string] | null => {
+  const memorizeMatches = [...textRaw.matchAll(/\{Memorize\((.*?)\)\}/g)];
+  if (memorizeMatches.length > 0) {
+    const matchContent = memorizeMatches[0][1];
+    const [textShown, textHidden, ...otherText] = matchContent.split(':');
+    return [
+      `<div style="background: #F3F4F6; text-align:center; font-size: 1.3rem; color: #8B5CF6; box-shadow: 0 2px 8px rgba(139,92,246,0.15); border-radius: 8px; padding: 8px 16px; transition: box-shadow 0.2s, background 0.2s; cursor: pointer;" onmouseover="this.style.background='#EDE9FE';this.style.boxShadow='0 4px 16px rgba(139,92,246,0.25)';" onmouseout="this.style.background='#F3F4F6';this.style.boxShadow='0 2px 8px rgba(139,92,246,0.15)';">${textShown}</div>`,
+      `<div style="background: #F3F4F6; text-align:center; font-size: 1.3rem; color: #EF4444; box-shadow: 0 2px 8px rgba(239,68,68,0.15); border-radius: 8px; padding: 8px 16px; transition: box-shadow 0.2s, background 0.2s; cursor: pointer;" onmouseover="this.style.background='#FEE2E2';this.style.boxShadow='0 4px 16px rgba(239,68,68,0.25)';" onmouseout="this.style.background='#F3F4F6';this.style.boxShadow='0 2px 8px rgba(239,68,68,0.15)';">${textHidden}</div>`
+    ];
+  }
+  return null;
+}
+
+export const evaluateNoteContent = async (content: string | undefined, noteColor: string): Promise<string | string[]> => {
   let processed = content;
 
   // Process in order
   processed = processMath(processed);
   processed = processJavaScript(processed);
-  processed = processUrls(processed);
-  processed = processNoted(processed);
-  processed = processEmojis(processed);
-  processed = processMarkdown(processed);
-  processed = await processModules(processed, noteColor);
-
-  return processed;
+  const memorizeResult = processMemorize(processed);
+  if (memorizeResult === null) {
+    // No memorize pattern, continue processing as string
+    processed = processUrls(processed);
+    processed = processNoted(processed);
+    processed = processEmojis(processed);
+    processed = processMarkdown(processed);
+    processed = await processModules(processed, noteColor);
+    return processed;
+  } else {
+    // If memorize pattern found, return the [shown, hidden] array directly
+    return memorizeResult;
+  }
 };

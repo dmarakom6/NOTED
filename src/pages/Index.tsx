@@ -11,7 +11,7 @@ import { indexedDBStorage } from "@/utils/indexedDBStorage";
 export interface Note {
   id: string;
   content: string;
-  evaluatedContent?: string;
+  evaluatedContent?: string | string[];
   createdAt: Date;
   color: string;
   pinned?: boolean;
@@ -53,7 +53,7 @@ const Index = () => {
         
         if (savedNotes) {
           try {
-            const parsedNotes = JSON.parse(savedNotes).map((note: any) => ({
+            const parsedNotes = JSON.parse(savedNotes).map((note: Note) => ({
               ...note,
               createdAt: new Date(note.createdAt)
             }));
@@ -65,7 +65,7 @@ const Index = () => {
         
         if (savedTasks) {
           try {
-            const parsedTasks = JSON.parse(savedTasks).map((task: any) => ({
+            const parsedTasks = JSON.parse(savedTasks).map((task: Task) => ({
               ...task,
               completedAt: task.completedAt ? new Date(task.completedAt) : undefined
             }));
@@ -104,7 +104,7 @@ const Index = () => {
     }
   }, [tasks, isLoading]);
 
-  const addNote = (content: string, color: string = '#8B5CF6', evaluatedContent?: string) => {
+  const addNote = (content: string, color: string = '#8B5CF6', evaluatedContent?: string | string[]) => {
     const newNote: Note = {
       id: Date.now().toString(),
       content,
@@ -179,9 +179,14 @@ const Index = () => {
     });
   };
 
-  const handleViewNote = (note: Note) => {
-    setSelectedNote(note);
-    setIsNoteViewerOpen(true);
+  const handleViewNote = async (note: Note) => {
+    if (note.evaluatedContent && note.evaluatedContent instanceof Promise) {
+      console.log(note.evaluatedContent);
+      setIsNoteViewerOpen(true);
+    } else {
+      setSelectedNote(note);
+      setIsNoteViewerOpen(true);
+    }
   };
 
   const completedToday = tasks.filter(task => {

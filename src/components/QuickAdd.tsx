@@ -6,7 +6,7 @@ import { Plus, Zap } from "lucide-react";
 import { evaluateNoteContent } from "@/utils/noteEvaluator";
 
 interface QuickAddProps {
-  onAddNote: (content: string, color?: string, evaluatedContent?: string) => void;
+  onAddNote: (content: string, color?: string, evaluatedContent?: string | string[]) => void;
   onAddTask: (content: string) => void;
 }
 

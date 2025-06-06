@@ -187,7 +187,7 @@ export const NoteViewer = ({ note, isOpen, onClose, onDelete, onUpdate, onConver
             <div className="prose prose-invert max-w-none">
               {note.evaluatedContent ? (
                 <div
-                  dangerouslySetInnerHTML={{ __html: note.evaluatedContent }}
+                  dangerouslySetInnerHTML={{ __html: (note.evaluatedContent instanceof Array ? note.evaluatedContent[1] : note.evaluatedContent) }}
                   className="whitespace-pre-wrap break-words text-sm leading-relaxed"
                 />
               ) : (

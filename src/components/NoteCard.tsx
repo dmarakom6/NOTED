@@ -74,18 +74,18 @@ export const NoteCard = ({ note, onDelete, onUpdate, onConvertToTask, onTogglePi
       }}
     >
       {/* Subtle glow effect */}
-      <div 
+      <div
         className="absolute inset-0 opacity-5 rounded-2xl"
         style={{ backgroundColor: note.color }}
       />
-      
+
       {/* Pin indicator */}
       {note.pinned && (
         <div className="absolute top-2 right-2">
           <Pin className="h-4 w-4 text-yellow-400" fill="currentColor" />
         </div>
       )}
-      
+
       <div className="relative z-10">
         {isEditing ? (
           <div className="space-y-3">
@@ -118,7 +118,7 @@ export const NoteCard = ({ note, onDelete, onUpdate, onConvertToTask, onTogglePi
           <>
             <div
               className="whitespace-pre-wrap text-sm leading-relaxed cursor-pointer hover:text-foreground/80 transition-colors break-words overflow-hidden"
-              style={{ 
+              style={{
                 maxHeight: '200px',
                 wordWrap: 'break-word',
                 overflowWrap: 'break-word',
@@ -130,18 +130,18 @@ export const NoteCard = ({ note, onDelete, onUpdate, onConvertToTask, onTogglePi
             >
               <div className="pr-2 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
                 {note.evaluatedContent ? (
-                  <div dangerouslySetInnerHTML={{ __html: note.evaluatedContent }} />
+                  <div dangerouslySetInnerHTML={{ __html: note.evaluatedContent instanceof Array ? note.evaluatedContent[0] : note.evaluatedContent }} />
                 ) : (
                   note.content
                 )}
               </div>
             </div>
-            
+
             <div className="flex items-center justify-between mt-4 pt-3 border-t border-white/10">
               <span className="text-xs text-muted-foreground">
                 {note.createdAt.toLocaleDateString()}
               </span>
-              
+
               {/* Desktop buttons - hidden on mobile */}
               <div className="hidden sm:flex space-x-1">
                 {onTogglePin && (

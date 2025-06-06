@@ -183,7 +183,7 @@ const Docs = () => {
                     <div className="p-4 rounded-lg glass border border-white/10">
                       <h4 className="font-medium mb-2"><code>Location</code></h4>
                       <p className="text-sm text-muted-foreground">
-                          Children: <span className="bg-glass-strong text-orange-300"><code>here</code></span>.
+                        Children: <span className="bg-glass-strong text-orange-300"><code>here</code></span>.
                       </p>
                       <p className="text-sm text-muted-foreground">
                         Displays your current coordinates and location using <code>Navigator.geolocation</code>.
@@ -197,6 +197,16 @@ const Docs = () => {
                       </p>
                       <p className="text-sm text-muted-foreground">
                         Evaluates a JavaScript expression and returns the result. Useful for quick calculations or logic. Be careful with commands that can cause side effects, as they will be executed.
+                      </p>
+                    </div>
+                    {/* Memorize Module */}
+                    <div className="p-4 rounded-lg glass border border-white/10">
+                      <h4 className="font-medium mb-2"><code>Memorize(string:string)</code></h4>
+                      <p className="text-sm text-muted-foreground">
+                        Children: <span className="bg-glass-strong text-orange-300"><code>Pair(string, string)</code></span>.
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        Creates a <a className="text-neon-purple" href="https://en.wikipedia.org/wiki/Flashcard">flashcard</a> for memorization. The first string is the question, and the second is the answer.
                       </p>
                     </div>
                     {/* Math Module */}
@@ -263,7 +273,7 @@ const Docs = () => {
                   </div>
                   <p className="text-sm text-muted-foreground">
                     Other modules include Markdown, Emoji and special word evaluation.
-                    </p>
+                  </p>
                   {/* Examples */}
                   <div className="mt-8">
                     <h3 className="font-semibold text-neon-purple mb-2">Examples</h3>
@@ -282,6 +292,14 @@ const Docs = () => {
                         </code>
                         <span className="text-xs text-muted-foreground">
                           Runs the JavaScript code and returns <b>[2, 4, 6]</b>.
+                        </span>
+                      </div>
+                      <div className="p-3 rounded-lg glass border border-white/10">
+                        <code className="block text-neon-blue mb-1">
+                          {"{Memorize(What is the capital of France?:Paris)}"}
+                        </code>
+                        <span className="text-xs text-muted-foreground">
+                          Creates a flashcard for memorization with the question "What is the capital of France?" and the answer "Paris" when clicked on.
                         </span>
                       </div>
                       <div className="p-3 rounded-lg glass border border-white/10">
