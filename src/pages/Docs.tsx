@@ -270,10 +270,10 @@ const Docs = () => {
                     <div className="space-y-3">
                       <div className="p-3 rounded-lg glass border border-white/10">
                         <code className="block text-neon-blue mb-1">
-                          {"{math: 2 + 2 * 5}"}
+                          {"10 + {exp(0)} + {bin(4)}"}
                         </code>
                         <span className="text-xs text-muted-foreground">
-                          Evaluates the math expression and returns <b>12</b>.
+                          Evaluates the math expression and returns <b>111</b>.
                         </span>
                       </div>
                       <div className="p-3 rounded-lg glass border border-white/10">
