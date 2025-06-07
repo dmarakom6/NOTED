@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, BookOpen, Users, MessageCircle, ChevronRight, ArrowRight, NotepadText } from "lucide-react";
+import { ArrowLeft, BookOpen, Users, MessageCircle, ChevronRight, ArrowRight, NotepadText, Settings } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Support } from "@/components/Support";
 import { Share } from "lucide-react";
@@ -386,7 +386,10 @@ const Docs = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-muted-foreground mb-4">Use the  <span className="inline-block"><Share /></span>  Icon to export your notes and/or tasks into various types (Text, MD or JSON). </p>
+                  <ul>
+                    <li className="text-muted-foreground mb-4">Use the  <span className="inline-block"><Share /></span>  Icon to export your notes and/or tasks into various types (Text, MD or JSON). </li>
+                    <li className="text-muted-foreground mb-4">Go to Settings  <span className="inline-block"><Settings /></span>  and clear your data, or import your backups from a JSON file.</li>
+                  </ul>
                 </CardContent>
               </Card>
             </section>
