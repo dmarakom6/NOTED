@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Settings as SettingsIcon, Moon, Sun, Monitor, Type, Eye, Contrast } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,13 +23,21 @@ interface SettingsProps {
 }
 
 export const Settings = ({ isOpen, onClose }: SettingsProps) => {
-  const [theme, setTheme] = useState("dark");
+  const [theme, setTheme] = useState(localStorage.getItem("current-theme") || "dark"); // Default to dark mode if no theme is set
   const [fontSize, setFontSize] = useState("medium");
   const [highContrast, setHighContrast] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
 
+  useEffect(() => {
+    const storedTheme = localStorage.getItem("current-theme");
+    if (storedTheme) {
+      handleThemeChange(storedTheme);
+    }
+  }, []);
+
   const handleThemeChange = (newTheme: string) => {
     setTheme(newTheme);
+    localStorage.setItem("current-theme", newTheme);
     document.documentElement.setAttribute('data-theme', newTheme);
   };
 
@@ -87,12 +95,12 @@ export const Settings = ({ isOpen, onClose }: SettingsProps) => {
                     <span>Light</span>
                   </div>
                 </SelectItem>
-                <SelectItem value="system">
+                {/* <SelectItem value="system">
                   <div className="flex items-center space-x-2">
                     <Monitor className="h-4 w-4" />
                     <span>System</span>
                   </div>
-                </SelectItem>
+                </SelectItem> */}
               </SelectContent>
             </Select>
           </div>
