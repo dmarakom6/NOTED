@@ -288,22 +288,28 @@ const processMemorize = (textRaw: string): [string, string] | null => {
 }
 
 export const evaluateNoteContent = async (content: string | undefined, noteColor: string): Promise<string | string[]> => {
-  let processed = content;
+  if (!content) return "";
+  const lines = content.split('\n').map(line => line.trim()); // Normalize whitespace
 
-  // Process in order
-  processed = processMath(processed);
-  processed = processJavaScript(processed);
-  const memorizeResult = processMemorize(processed);
-  if (memorizeResult === null) {
-    // No memorize pattern, continue processing as string
-    processed = processUrls(processed);
-    processed = processNoted(processed);
-    processed = processEmojis(processed);
-    processed = processMarkdown(processed);
-    processed = await processModules(processed, noteColor);
-    return processed;
-  } else {
-    // If memorize pattern found, return the [shown, hidden] array directly
-    return memorizeResult;
+  const results: (string | string[])[] = [];
+
+  for (const lineRaw of lines) {
+    let line = processMath(lineRaw);
+    line = processJavaScript(line);
+    const memorizeResult = processMemorize(line);
+    if (memorizeResult === null) {
+      // No memorize pattern, continue processing as string
+      line = processUrls(line);
+      line = processNoted(line);
+      line = processEmojis(line);
+      line = processMarkdown(line);
+      line = await processModules(line, noteColor);
+      results.push(line);
+    } else {
+      // If memorize pattern found, return the [shown, hidden] array directly
+      results.push(memorizeResult);
+    }
   }
+
+  return results.length === 1 ? results[0] : results.join('\n');
 };
