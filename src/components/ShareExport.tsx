@@ -52,7 +52,7 @@ export const ShareExport = ({ isOpen, onClose, notes, tasks }: ShareExportProps)
         break;
       
       case 'json':
-        content = JSON.stringify(notes, null, 2);
+        content = JSON.stringify({ notes }, null, 2);
         filename = 'noted-notes.json';
         mimeType = 'application/json';
         break;
@@ -98,7 +98,7 @@ export const ShareExport = ({ isOpen, onClose, notes, tasks }: ShareExportProps)
         break;
       
       case 'json':
-        content = JSON.stringify(tasks, null, 2);
+        content = JSON.stringify({ tasks }, null, 2);
         filename = 'noted-tasks.json';
         mimeType = 'application/json';
         break;
@@ -181,7 +181,8 @@ export const ShareExport = ({ isOpen, onClose, notes, tasks }: ShareExportProps)
     
     toast({
       title: "Export successful",
-      description: `${filename} has been downloaded.`
+      description: `${filename} has been downloaded.`,
+      variant: "success"
     });
     
     onClose();

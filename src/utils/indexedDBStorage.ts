@@ -53,7 +53,7 @@ class IndexedDBStorage {
       notes.forEach(note => {
         store.add({
           ...note,
-          createdAt: note.createdAt.toISOString()
+          // createdAt: note.createdAt.toISOString()
         });
       });
 
@@ -71,7 +71,7 @@ class IndexedDBStorage {
       const request = store.getAll();
 
       request.onsuccess = () => {
-        const notes = request.result.map((note: any) => ({
+        const notes = request.result.map((note: Note) => ({
           ...note,
           createdAt: new Date(note.createdAt)
         }));
@@ -96,7 +96,7 @@ class IndexedDBStorage {
       tasks.forEach(task => {
         store.add({
           ...task,
-          completedAt: task.completedAt ? task.completedAt.toISOString() : undefined
+          // completedAt: task.completedAt ? task.completedAt.toISOString() : undefined
         });
       });
 
@@ -114,7 +114,7 @@ class IndexedDBStorage {
       const request = store.getAll();
 
       request.onsuccess = () => {
-        const tasks = request.result.map((task: any) => ({
+        const tasks = request.result.map((task: Task) => ({
           ...task,
           completedAt: task.completedAt ? new Date(task.completedAt) : undefined
         }));
@@ -124,6 +124,59 @@ class IndexedDBStorage {
       request.onerror = () => reject(request.error);
     });
   }
+
+
+
+  async clearAllData(): Promise<void> {
+    if (!this.db) await this.init();
+    
+    return new Promise((resolve, reject) => {
+      const transaction = this.db!.transaction([NOTES_STORE, TASKS_STORE], 'readwrite');
+      const notesStore = transaction.objectStore(NOTES_STORE);
+      const tasksStore = transaction.objectStore(TASKS_STORE);
+
+      const notesClearRequest = notesStore.clear();
+      const tasksClearRequest = tasksStore.clear();
+
+      notesClearRequest.onsuccess = () => {
+        tasksClearRequest.onsuccess = () => resolve();
+      };
+
+      notesClearRequest.onerror = () => reject(notesClearRequest.error);
+      tasksClearRequest.onerror = () => reject(tasksClearRequest.error);
+    });
+  }
+
+  async importData(notes: Note[], tasks: Task[]): Promise<void> {
+    if (!this.db) await this.init();
+    
+    return new Promise((resolve, reject) => {
+      const transaction = this.db!.transaction([NOTES_STORE, TASKS_STORE], 'readwrite');
+      const notesStore = transaction.objectStore(NOTES_STORE);
+      const tasksStore = transaction.objectStore(TASKS_STORE);
+
+      // Add new notes
+      notes.forEach(note => {
+        notesStore.add({
+          ...note,
+          createdAt: note.createdAt.toISOString()
+        });
+      });
+
+      // Add new tasks
+      tasks.forEach(task => {
+        tasksStore.add({
+          ...task,
+          completedAt: task.completedAt ? task.completedAt.toISOString() : undefined
+        });
+      });
+
+      transaction.oncomplete = () => resolve();
+      transaction.onerror = () => reject(transaction.error);
+    });
+  }
+
+
 }
 
 export const indexedDBStorage = new IndexedDBStorage();

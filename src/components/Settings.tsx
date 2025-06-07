@@ -1,6 +1,6 @@
 
 import { useEffect, useState } from "react";
-import { Settings as SettingsIcon, Moon, Sun, Monitor, Type, Eye, Contrast } from "lucide-react";
+import { Settings as SettingsIcon, Moon, Sun, Monitor, Type, Eye, Contrast, DatabaseIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -16,6 +16,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { indexedDBStorage } from "@/utils/indexedDBStorage";
+import { toast } from "@/hooks/use-toast";
+import { Note, Task } from "@/pages/Index";
 
 interface SettingsProps {
   isOpen: boolean;
@@ -27,6 +30,8 @@ export const Settings = ({ isOpen, onClose }: SettingsProps) => {
   const [fontSize, setFontSize] = useState("medium");
   const [highContrast, setHighContrast] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
+  const [dataCleared, setDataCleared] = useState(false);
+  const [isImportingData, setIsImportingData] = useState(false);
 
   useEffect(() => {
     const storedTheme = localStorage.getItem("current-theme");
@@ -34,6 +39,94 @@ export const Settings = ({ isOpen, onClose }: SettingsProps) => {
       handleThemeChange(storedTheme);
     }
   }, []);
+
+  useEffect(() => {
+    const checkData = async () => {
+      try {
+        const [notes, tasks] = await Promise.all([
+          indexedDBStorage.loadNotes(),
+          indexedDBStorage.loadTasks(),
+        ]);
+        setDataCleared(notes.length === 0 && tasks.length === 0);
+      } catch (error) {
+        console.error("Error checking data:", error);
+        setDataCleared(false);
+      }
+    };
+    checkData();
+  }, []);
+
+
+  useEffect(() => {
+  const handleDataCleared = () => setDataCleared(true);
+  window.addEventListener("data-cleared", handleDataCleared);
+  return () => window.removeEventListener("data-cleared", handleDataCleared);
+}, []);
+
+  const handleImportData = () => {
+    // Open file browser and look for json files
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.onchange = (event) => {
+      const file = (event.target as HTMLInputElement).files?.[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const data = e.target?.result;
+          if (typeof data === 'string') {
+            try {
+              const parsedData = JSON.parse(data);
+              if (parsedData && (Array.isArray(parsedData.notes) || Array.isArray(parsedData.tasks))) {
+                const notes = Array.isArray(parsedData.notes) ? parsedData.notes : null;
+                const tasks = Array.isArray(parsedData.tasks) ? parsedData.tasks : null;
+
+                // Import notes if present
+                const notesPromise = notes ? indexedDBStorage.saveNotes(notes) : Promise.resolve();
+                // Import tasks if present
+                const tasksPromise = tasks ? indexedDBStorage.saveTasks(tasks) : Promise.resolve();
+
+                Promise.all([notesPromise, tasksPromise])
+                  .then(() => {
+                    toast({
+                      title: "Data imported successfully!",
+                      description: "Your notes and/or tasks have been imported. Please refresh the page to see the changes.",
+                      variant: "success"
+                    });
+                  })
+                  .catch((error) => {
+                    console.error("Error importing data:", error);
+                    toast({
+                      title: "Import Error",
+                      description: "There was an error importing your data.",
+                      variant: "destructive"
+                    });
+                  });
+              } else {
+                alert("Invalid JSON structure. Please ensure the file contains 'notes' and/or 'tasks' arrays.");
+              }
+            } catch (error) {
+              console.error("Error parsing JSON data:", error);
+              alert("Invalid JSON file. Please upload a valid file.");
+            }
+          }
+        };
+        reader.readAsText(file);
+      }
+    };
+    input.click();
+  };
+
+const clearData = () => {
+  indexedDBStorage.clearAllData().then(() => {
+    setDataCleared(true);
+    // Optionally, dispatch event if other components need to know
+    window.dispatchEvent(new Event("data-cleared"));
+  }).catch((error) => {
+    console.error("Error clearing data:", error);
+    alert("Failed to clear data. Please try again.");
+  });
+};
 
   const handleThemeChange = (newTheme: string) => {
     setTheme(newTheme);
@@ -138,7 +231,7 @@ export const Settings = ({ isOpen, onClose }: SettingsProps) => {
           {/* Accessibility Options */}
           <div className="space-y-4">
             <h4 className="text-sm font-medium text-muted-foreground">Accessibility</h4>
-            
+
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <Contrast className="h-4 w-4" />
@@ -168,9 +261,38 @@ export const Settings = ({ isOpen, onClose }: SettingsProps) => {
                 {reducedMotion ? "On" : "Off"}
               </Button>
             </div>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <DatabaseIcon className="h-4 w-4" />
+                <span className="text-sm">Data Management</span>
+              </div>
+              <Button
+                variant={dataCleared ? "ghost" : "outline"}
+                size="sm"
+                onClick={() => {
+                  clearData();
+                  setTimeout(() => {
+                    window.location.reload();
+                  }, 1000);
+                }}
+                className={`h-6 w-20 ${dataCleared ? "text-neon-purple" : "text-red-600"} text-xs`}
+                disabled={dataCleared}
+              >
+                {dataCleared ? "No Data" : "Clear Data"}
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleImportData}
+                className="h-6 w-24 text-xs text-neon-green"
+              >
+                Import Data
+              </Button>
+            </div>
           </div>
         </div>
       </SheetContent>
     </Sheet>
   );
 };
+
