@@ -18,16 +18,16 @@ export const FocusMode = ({ onExit }: FocusModeProps) => {
     return () => clearInterval(timer);
   }, []);
 
-  const handleKeyDown = (e: KeyboardEvent) => {
-    if (e.key === 'Escape') {
-      onExit();
-    }
-  };
-
   useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onExit();
+      }
+    };
+
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  }, [onExit]);
 
   return (
     <div className="fixed inset-0 bg-gradient-to-br from-background via-background to-purple-900/20 flex items-center justify-center z-50">

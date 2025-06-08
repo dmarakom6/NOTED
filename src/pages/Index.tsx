@@ -7,6 +7,7 @@ import { QuickAdd } from "@/components/QuickAdd";
 import { FocusMode } from "@/components/FocusMode";
 import { NoteViewer } from "@/components/NoteViewer";
 import { indexedDBStorage } from "@/utils/indexedDBStorage";
+import { toast } from "@/hooks/use-toast";
 
 export interface Note {
   id: string;
@@ -31,6 +32,39 @@ const Index = () => {
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
   const [isNoteViewerOpen, setIsNoteViewerOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [focusTime, setFocusTime] = useState(0); // in seconds
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout | null = null;
+    if (focusMode) {
+      timer = setInterval(() => {
+        setFocusTime((prev) => prev + 1);
+      }, 1000);
+    } else {
+      setFocusTime(0); // reset when not in focus mode
+    }
+    return () => {
+      if (timer) clearInterval(timer);
+    };
+  }, [focusMode]);
+
+
+  useEffect(() => { // Handle page visibility changes to update the title
+  const originalTitle = document.title;
+  const handleVisibilityChange = () => {
+    if (document.hidden) {
+      document.title = "Come back!";
+    } else {
+      document.title = originalTitle;
+    }
+  };
+  document.addEventListener("visibilitychange", handleVisibilityChange);
+  return () => {
+    document.removeEventListener("visibilitychange", handleVisibilityChange);
+    document.title = originalTitle;
+  };
+}, []);
+
 
   // Load data from IndexedDB on mount
   useEffect(() => {
@@ -41,16 +75,16 @@ const Index = () => {
           indexedDBStorage.loadNotes(),
           indexedDBStorage.loadTasks()
         ]);
-        
+
         setNotes(loadedNotes);
         setTasks(loadedTasks);
       } catch (error) {
         console.error('Error loading data from IndexedDB:', error);
-        
+
         // Fallback to localStorage if IndexedDB fails
         const savedNotes = localStorage.getItem('noted-notes');
         const savedTasks = localStorage.getItem('noted-tasks');
-        
+
         if (savedNotes) {
           try {
             const parsedNotes = JSON.parse(savedNotes).map((note: Note) => ({
@@ -62,7 +96,7 @@ const Index = () => {
             console.error('Error loading notes from localStorage:', error);
           }
         }
-        
+
         if (savedTasks) {
           try {
             const parsedTasks = JSON.parse(savedTasks).map((task: Task) => ({
@@ -121,7 +155,7 @@ const Index = () => {
   };
 
   const updateNote = (id: string, content: string) => {
-    setNotes(prev => prev.map(note => 
+    setNotes(prev => prev.map(note =>
       note.id === id ? { ...note, content } : note
     ));
   };
@@ -136,13 +170,13 @@ const Index = () => {
   };
 
   const toggleTask = (id: string) => {
-    setTasks(prev => prev.map(task => 
-      task.id === id 
-        ? { 
-            ...task, 
-            completed: !task.completed,
-            completedAt: !task.completed ? new Date() : undefined
-          }
+    setTasks(prev => prev.map(task =>
+      task.id === id
+        ? {
+          ...task,
+          completed: !task.completed,
+          completedAt: !task.completed ? new Date() : undefined
+        }
         : task
     ));
   };
@@ -165,15 +199,15 @@ const Index = () => {
     setNotes(prev => {
       const note = prev.find(n => n.id === id);
       if (!note) return prev;
-      
+
       const pinnedCount = prev.filter(n => n.pinned).length;
-      
+
       // If trying to pin and already have 3 pinned notes, don't allow
       if (!note.pinned && pinnedCount >= 3) {
         return prev;
       }
-      
-      return prev.map(n => 
+
+      return prev.map(n =>
         n.id === id ? { ...n, pinned: !n.pinned } : n
       );
     });
@@ -201,7 +235,21 @@ const Index = () => {
   });
 
   if (focusMode) {
-    return <FocusMode onExit={() => setFocusMode(false)} />;
+    return <FocusMode onExit={() => {
+      setFocusMode(false);
+      if (focusTime / 60 >= 5) {
+        toast({
+          title: "Laser Sharp.",
+          description: `You kept your focus for ${Math.floor(focusTime / 60)} minutes.`,
+        });
+      } else {
+        toast({
+          title: "Distraction Detected!",
+          description: `You were in focus mode for less than 5 minutes. Try to focus longer next time.`,
+          variant: "destructive",
+        });
+      }
+    }} />;
   }
 
   // Sort notes to show pinned ones first
@@ -225,20 +273,20 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-purple-900/20">
       {/* Fixed header on mobile, static on larger screens */}
-      <Header 
-        onFocusMode={() => setFocusMode(true)} 
+      <Header
+        onFocusMode={() => setFocusMode(true)}
         notes={notes}
         tasks={tasks}
       />
-      
+
       {/* Main content with top padding only for mobile fixed header */}
       <div className="container mx-auto px-4 pt-20 sm:pt-6 pb-6 space-y-6">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Main content area */}
           <div className="lg:col-span-2 space-y-6">
             <QuickAdd onAddNote={addNote} onAddTask={addTask} />
-            <NotesGrid 
-              notes={sortedNotes} 
+            <NotesGrid
+              notes={sortedNotes}
               onDeleteNote={deleteNote}
               onUpdateNote={updateNote}
               onConvertToTask={convertNoteToTask}
@@ -246,11 +294,11 @@ const Index = () => {
               onViewNote={handleViewNote}
             />
           </div>
-          
+
           {/* Sidebar */}
           <div className="space-y-6">
             <PomodoroTimer />
-            <TasksList 
+            <TasksList
               tasks={tasks}
               onToggleTask={toggleTask}
               onDeleteTask={deleteTask}
