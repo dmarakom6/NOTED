@@ -372,7 +372,8 @@ const Docs = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-muted-foreground mb-4"><span className="text-bold text-neon-purple">Ctrl (Command) + Enter</span> | Save note from editor</p>
+                  <p className="text-muted-foreground mb-4"><span className="text-bold text-neon-purple">Ctrl (Meta) + Enter</span> | Save note from editor</p>
+                  <p className="text-muted-foreground mb-4"><span className="text-bold text-neon-purple">Ctrl (Meta) + E</span> | Toggle evaluation mode</p>
                 </CardContent>
               </Card>
             </section>
@@ -403,7 +404,7 @@ const Docs = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-muted-foreground mb-4">Common issues and their solutions can be discussed on <a className="text-neon-purple" href="https://github.com/dmarakom6/NOTED./issues">Github</a></p>
+                  <p className="text-muted-foreground mb-4">Common issues and their solutions can be discussed on <a className="text-neon-purple" href="https://github.com/dmarakom6/NOTED./issues">Github.</a></p>
                 </CardContent>
               </Card>
             </section>

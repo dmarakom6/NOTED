@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Plus, Zap } from "lucide-react";
@@ -25,6 +25,7 @@ export const QuickAdd = ({ onAddNote, onAddTask }: QuickAddProps) => {
   const [mode, setMode] = useState<'Note' | 'Task'>('Note');
   const [evaluateMode, setEvaluateMode] = useState(false);
 
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!content.trim()) return;
@@ -39,13 +40,18 @@ export const QuickAdd = ({ onAddNote, onAddTask }: QuickAddProps) => {
     } else {
       onAddTask(content.trim());
     }
-    
+
     setContent("");
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
       handleSubmit(e);
+    }
+
+    if (e.key === 'e' && (e.ctrlKey || e.metaKey)) {
+      setEvaluateMode(!evaluateMode);
+      e.preventDefault(); // Prevent default backspace behavior
     }
   };
 
@@ -92,9 +98,8 @@ export const QuickAdd = ({ onAddNote, onAddTask }: QuickAddProps) => {
                   key={color}
                   type="button"
                   onClick={() => setSelectedColor(color)}
-                  className={`w-6 h-6 rounded-full transition-all duration-200 ${
-                    selectedColor === color ? 'ring-2 ring-white/50 scale-110' : 'hover:scale-105'
-                  }`}
+                  className={`w-6 h-6 rounded-full transition-all duration-200 ${selectedColor === color ? 'ring-2 ring-white/50 scale-110' : 'hover:scale-105'
+                    }`}
                   style={{ backgroundColor: color }}
                 />
               ))}
@@ -105,11 +110,10 @@ export const QuickAdd = ({ onAddNote, onAddTask }: QuickAddProps) => {
                 variant="outline"
                 size="sm"
                 onClick={() => setEvaluateMode(!evaluateMode)}
-                className={`glass text-xs transition-all duration-300 ease-in-out transform ${
-                  evaluateMode 
-                    ? 'evaluate-active' 
-                    : 'evaluate-inactive'
-                }`}
+                className={`glass text-xs transition-all duration-300 ease-in-out transform ${evaluateMode
+                  ? 'evaluate-active'
+                  : 'evaluate-inactive'
+                  }`}
               >
                 <Zap className={`w-3 h-3 mr-1 transition-transform duration-300 ${evaluateMode ? 'animate-pulse' : ''}`} />
                 Evaluate
