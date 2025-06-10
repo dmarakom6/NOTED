@@ -39,7 +39,7 @@ export default {
 				},
 				destructive: {
 					DEFAULT: 'hsl(var(--destructive))',
-					foreground: 'hsl(var(--destructive-foreground))'
+					foreground: 'hsl(var(--destructive-foreground-light))'
 				},
 				success: {
 					DEFAULT: 'hsl(var(--success))',

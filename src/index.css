@@ -28,6 +28,7 @@
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 220 9% 95%;
+    --destructive-foreground--light: 220 0% 95%;
 
     --border: 220 27% 18%;
     --input: 220 27% 18%;

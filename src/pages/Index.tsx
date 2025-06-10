@@ -312,7 +312,7 @@ const Index = () => {
       <NoteViewer
         note={selectedNote}
         isOpen={isNoteViewerOpen}
-        onClose={() => setIsNoteViewerOpen(false)}
+        onClose={() => {setIsNoteViewerOpen(false); setSelectedNote(null); }}
         onDelete={deleteNote}
         onUpdate={updateNote}
         onConvertToTask={convertNoteToTask}
