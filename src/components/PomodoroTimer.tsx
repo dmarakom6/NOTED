@@ -23,7 +23,15 @@ export const PomodoroTimer = () => {
   const playCompletionSound = () => {
     try {
       // Create a simple success sound using Web Audio API
-      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      // Extend the Window type to include webkitAudioContext for older browsers
+      type WindowWithWebkitAudioContext = Window & {
+        webkitAudioContext?: typeof AudioContext;
+      };
+      
+            const audioContext = new (
+              window.AudioContext ||
+              (window as WindowWithWebkitAudioContext).webkitAudioContext
+            )();
       const oscillator = audioContext.createOscillator();
       const gainNode = audioContext.createGain();
 
@@ -46,7 +54,7 @@ export const PomodoroTimer = () => {
 
   const showCelebration = () => {
     toast({
-      title: "🎉 Good Job! You're doing numbers!",
+      title: "🎉 Good Job! You're doing numbers.",
       description: mode === 'work' 
         ? "Time for a well-deserved break!" 
         : "Ready to get back to work?",
@@ -81,7 +89,8 @@ export const PomodoroTimer = () => {
         clearInterval(intervalRef.current);
       }
     };
-  }, [isActive, minutes, seconds]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isActive, seconds, minutes, mode]);
 
   const handleModeSwitch = () => {
     if (mode === 'work') {
@@ -110,7 +119,7 @@ export const PomodoroTimer = () => {
     setSeconds(0);
   };
 
-  const radius = 60;
+  const radius: number = 60; // Radius of the circle in pixels
   const circumference = 2 * Math.PI * radius;
   const strokeDasharray = circumference;
   const strokeDashoffset = circumference - (progress / 100) * circumference;
@@ -139,6 +148,7 @@ export const PomodoroTimer = () => {
               cx="64"
               cy="64"
               r={radius}
+              id="circle"
               stroke="rgba(255, 255, 255, 0.1)"
               strokeWidth="4"
               fill="transparent"

@@ -32,6 +32,7 @@ export const Settings = ({ isOpen, onClose }: SettingsProps) => {
   const [reducedMotion, setReducedMotion] = useState(false);
   const [dataCleared, setDataCleared] = useState(false);
   const [isImportingData, setIsImportingData] = useState(false);
+  const [radius, setRadius] = useState<30 | 60 | 90>(60); // Default radius for the settings sheet
 
   useEffect(() => {
     const storedTheme = localStorage.getItem("current-theme");
@@ -58,10 +59,10 @@ export const Settings = ({ isOpen, onClose }: SettingsProps) => {
 
 
   useEffect(() => {
-  const handleDataCleared = () => setDataCleared(true);
-  window.addEventListener("data-cleared", handleDataCleared);
-  return () => window.removeEventListener("data-cleared", handleDataCleared);
-}, []);
+    const handleDataCleared = () => setDataCleared(true);
+    window.addEventListener("data-cleared", handleDataCleared);
+    return () => window.removeEventListener("data-cleared", handleDataCleared);
+  }, []);
 
   const handleImportData = () => {
     // Open file browser and look for json files
@@ -117,16 +118,16 @@ export const Settings = ({ isOpen, onClose }: SettingsProps) => {
     input.click();
   };
 
-const clearData = () => {
-  indexedDBStorage.clearAllData().then(() => {
-    setDataCleared(true);
-    // Optionally, dispatch event if other components need to know
-    window.dispatchEvent(new Event("data-cleared"));
-  }).catch((error) => {
-    console.error("Error clearing data:", error);
-    alert("Failed to clear data. Please try again.");
-  });
-};
+  const clearData = () => {
+    indexedDBStorage.clearAllData().then(() => {
+      setDataCleared(true);
+      // Optionally, dispatch event if other components need to know
+      window.dispatchEvent(new Event("data-cleared"));
+    }).catch((error) => {
+      console.error("Error clearing data:", error);
+      alert("Failed to clear data. Please try again.");
+    });
+  };
 
   const handleThemeChange = (newTheme: string) => {
     setTheme(newTheme);
@@ -142,6 +143,26 @@ const clearData = () => {
       large: '18px'
     };
     document.documentElement.style.fontSize = sizeMap[newSize as keyof typeof sizeMap];
+
+    const radiusMap = {
+      small: 40,
+      medium: 60,
+      large: 65
+    };
+    const cxcyMap = {
+      small: 55,
+      medium: 72,
+      large: 73
+    };
+    const timerCircle = document.getElementById("circle");
+    if (timerCircle) {
+      const r = radiusMap[newSize as keyof typeof radiusMap];
+      const cxcy = cxcyMap[newSize as keyof typeof cxcyMap];
+      timerCircle.setAttribute("r", r.toString());
+      timerCircle.setAttribute("cx", cxcy.toString());
+      timerCircle.setAttribute("cy", cxcy.toString());
+    }
+
   };
 
   const toggleHighContrast = () => {
