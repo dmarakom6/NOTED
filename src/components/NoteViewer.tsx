@@ -6,6 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { X, Pin, List, Trash, Pencil, Clipboard, ClipboardCheck } from "lucide-react";
 import { set } from "date-fns";
+import { evaluateNoteContent } from "@/utils/noteEvaluator";
+import { toast } from "@/hooks/use-toast";
+import { indexedDBStorage } from "@/utils/indexedDBStorage";
 
 interface NoteViewerProps {
   note: Note | null;
@@ -56,10 +59,40 @@ export const NoteViewer = ({ note, isOpen, onClose, onDelete, onUpdate, onConver
   };
 
   const handleSave = () => {
-    if (editContent.trim() !== note.content) {
-      onUpdate(note.id, editContent.trim());
+    if (!note.evaluatedContent) {
+    const trimmedContent = editContent.trim();
+    if (trimmedContent !== note.content) {
+      onUpdate(note.id, trimmedContent);
     }
-    setIsEditing(false);
+  } else {
+    // save it as a new note, evaluate it and remove the old one
+    const trimmedContent = editContent.trim();
+    evaluateNoteContent(trimmedContent, note.color).then((evaluatedContent) => {
+      if (evaluatedContent !== note.evaluatedContent) {
+        indexedDBStorage.saveNote({
+          ...note,
+          content: trimmedContent,
+          evaluatedContent: evaluatedContent,
+          createdAt: new Date(), // Update createdAt to current time
+          pinned: note.pinned // Preserve pinned state
+        });
+        toast({
+          title: "Note updated",
+          description: "Your evaluated note has been updated successfully.",
+          variant: "evaluation",
+        });
+        setTimeout(() => window.location.reload(), 2000);
+      }
+    }).catch((error) => {
+      console.error("Error evaluating note content:", error);
+      toast({
+        title: "Error",
+        description: "Failed to evaluate note content. Please try again.",
+        variant: "destructive",
+      });
+    });
+  }
+    onClose();
   };
 
   const handleCancel = () => {

@@ -62,6 +62,20 @@ class IndexedDBStorage {
     });
   }
 
+  async saveNote(note: Note): Promise<void> {
+    if (!this.db) await this.init();
+    return new Promise((resolve, reject) => {
+      const transaction = this.db!.transaction([NOTES_STORE], 'readwrite');
+      const store = transaction.objectStore(NOTES_STORE);
+      const request = store.put({
+        ...note,
+        createdAt: note.createdAt.toISOString()
+      });
+      request.onsuccess = () => resolve();
+      request.onerror = () => reject(request.error);
+    });
+  }
+
   async loadNotes(): Promise<Note[]> {
     if (!this.db) await this.init();
     

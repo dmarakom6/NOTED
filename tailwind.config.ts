@@ -45,6 +45,10 @@ export default {
 					DEFAULT: 'hsl(var(--success))',
 					foreground: 'hsl(var(--success-foreground))'
 				},
+				evaluation: {
+					DEFAULT: 'orange-blur',
+					foreground: 'white'
+				},
 				muted: {
 					DEFAULT: 'hsl(var(--muted))',
 					foreground: 'hsl(var(--muted-foreground))'
@@ -81,6 +85,10 @@ export default {
 					blue: '#06B6D4',
 					pink: '#EC4899',
 					green: '#10B981'
+				},
+				orangeBlur: {
+					DEFAULT: 'orange-500/20',
+					foreground: 'orange-900'
 				}
 			},
 			borderRadius: {
@@ -142,6 +150,10 @@ export default {
 				'pulse-glow': {
 					'0%, 100%': { boxShadow: '0 0 20px rgba(139, 92, 246, 0.3)' },
 					'50%': { boxShadow: '0 0 30px rgba(139, 92, 246, 0.6)' }
+				},
+				'orange-blur': {
+					'0%, 100%': { boxShadow: '0 0 20px 10px rgba(255, 140, 0, 0.3)' },
+					'50%': { boxShadow: '0 0 40px 20px rgba(255, 140, 0, 0.5)' }
 				}
 			},
 			animation: {
@@ -151,7 +163,8 @@ export default {
 				'slide-up': 'slide-up 0.4s ease-out',
 				'scale-in': 'scale-in 0.2s ease-out',
 				'float': 'float 3s ease-in-out infinite',
-				'pulse-glow': 'pulse-glow 2s ease-in-out infinite'
+				'pulse-glow': 'pulse-glow 2s ease-in-out infinite',
+				'orange-blur': 'orange-blur 2s ease-in-out infinite'
 			},
 			backdropBlur: {
 				xs: '2px',
