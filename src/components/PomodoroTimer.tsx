@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Play, Pause, RotateCcw } from "lucide-react";
+import { Play, Pause, RotateCcw, Coffee, Brain } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 export const PomodoroTimer = () => {
@@ -14,33 +14,24 @@ export const PomodoroTimer = () => {
   const intervalRef = useRef<NodeJS.Timeout>();
   const { toast } = useToast();
 
-  const workTime = 25 * 60; // 25 minutes
-  const breakTime = 5 * 60; // 5 minutes
+  const workTime = 25 * 60;
+  const breakTime = 5 * 60;
   const totalTime = mode === 'work' ? workTime : breakTime;
   const currentTime = minutes * 60 + seconds;
   const progress = ((totalTime - currentTime) / totalTime) * 100;
 
   const playCompletionSound = () => {
     try {
-      // Create a simple success sound using Web Audio API
-      // Extend the Window type to include webkitAudioContext for older browsers
-      type WindowWithWebkitAudioContext = Window & {
-        webkitAudioContext?: typeof AudioContext;
-      };
-      
-            const audioContext = new (
-              window.AudioContext ||
-              (window as WindowWithWebkitAudioContext).webkitAudioContext
-            )();
+      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
       const oscillator = audioContext.createOscillator();
       const gainNode = audioContext.createGain();
 
       oscillator.connect(gainNode);
       gainNode.connect(audioContext.destination);
 
-      oscillator.frequency.setValueAtTime(523.25, audioContext.currentTime); // C5
-      oscillator.frequency.setValueAtTime(659.25, audioContext.currentTime + 0.1); // E5
-      oscillator.frequency.setValueAtTime(783.99, audioContext.currentTime + 0.2); // G5
+      oscillator.frequency.setValueAtTime(523.25, audioContext.currentTime);
+      oscillator.frequency.setValueAtTime(659.25, audioContext.currentTime + 0.1);
+      oscillator.frequency.setValueAtTime(783.99, audioContext.currentTime + 0.2);
 
       gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
       gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
@@ -52,16 +43,6 @@ export const PomodoroTimer = () => {
     }
   };
 
-  const showCelebration = () => {
-    toast({
-      title: "🎉 Good Job! You're doing numbers.",
-      description: mode === 'work' 
-        ? "Time for a well-deserved break!" 
-        : "Ready to get back to work?",
-      duration: 5000,
-    });
-  };
-
   useEffect(() => {
     if (isActive) {
       intervalRef.current = setInterval(() => {
@@ -71,26 +52,22 @@ export const PomodoroTimer = () => {
           setMinutes(minutes - 1);
           setSeconds(59);
         } else {
-          // Timer finished
           setIsActive(false);
           playCompletionSound();
-          showCelebration();
+          toast({
+            title: mode === 'work' ? "Work session complete!" : "Break complete!",
+            description: mode === 'work' ? "Time for a break." : "Ready for work?",
+          });
           handleModeSwitch();
         }
       }, 1000);
     } else {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
+      if (intervalRef.current) clearInterval(intervalRef.current);
     }
-
     return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
+      if (intervalRef.current) clearInterval(intervalRef.current);
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isActive, seconds, minutes, mode]);
+  }, [isActive, seconds, minutes, mode, toast]);
 
   const handleModeSwitch = () => {
     if (mode === 'work') {
@@ -105,114 +82,96 @@ export const PomodoroTimer = () => {
     }
   };
 
-  const toggle = () => {
-    setIsActive(!isActive);
-  };
+  const toggle = () => setIsActive(!isActive);
 
   const reset = () => {
     setIsActive(false);
-    if (mode === 'work') {
-      setMinutes(25);
-    } else {
-      setMinutes(5);
-    }
+    setMinutes(mode === 'work' ? 25 : 5);
     setSeconds(0);
   };
 
-  const radius: number = 60; // Radius of the circle in pixels
+  const radius = 54;
   const circumference = 2 * Math.PI * radius;
-  const strokeDasharray = circumference;
   const strokeDashoffset = circumference - (progress / 100) * circumference;
 
   return (
-    <Card className="glass-strong border-white/20 animate-slide-up">
-      <CardHeader>
-        <CardTitle className="text-center text-lg">
-          Pomodoro Timer
-        </CardTitle>
-        <div className="text-center">
-          <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
+    <Card className="glass-strong border-white/10 shadow-lg overflow-hidden animate-fade-in">
+      <CardHeader className="pb-2 space-y-1">
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-sm font-bold uppercase tracking-wide text-muted-foreground">
+            Timer
+          </CardTitle>
+          <div className={`flex items-center space-x-1.5 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wide ${
             mode === 'work' 
-              ? 'bg-neon-purple/20 text-neon-purple' 
-              : 'bg-neon-green/20 text-neon-green'
+              ? 'bg-primary/10 text-primary' 
+              : 'bg-green-500/10 text-green-700 dark:text-green-400'
           }`}>
-            {mode === 'work' ? 'Focus Time' : 'Break Time'}
-          </span>
+            {mode === 'work' ? (
+              <><Brain className="w-3 h-3" /> <span>Focus</span></>
+            ) : (
+              <><Coffee className="w-3 h-3" /> <span>Break</span></>
+            )}
+          </div>
         </div>
       </CardHeader>
-      <CardContent className="space-y-6">
-        {/* Circular Progress */}
-        <div className="relative flex items-center justify-center">
-          <svg className="transform -rotate-90 w-32 h-32">
+      <CardContent className="flex flex-col items-center pt-4 pb-8 space-y-8">
+        <div className="relative">
+          <svg className="w-40 h-40 transform -rotate-90">
             <circle
-              cx="64"
-              cy="64"
+              cx="80"
+              cy="80"
               r={radius}
-              id="circle"
-              stroke="rgba(255, 255, 255, 0.1)"
-              strokeWidth="4"
-              fill="transparent"
+              className="stroke-muted/20 fill-none"
+              strokeWidth="6"
             />
             <circle
-              cx="64"
-              cy="64"
+              cx="80"
+              cy="80"
               r={radius}
-              stroke={mode === 'work' ? '#8B5CF6' : '#10B981'}
-              strokeWidth="4"
-              fill="transparent"
-              strokeDasharray={strokeDasharray}
+              className={`fill-none transition-all duration-1000 ease-linear ${
+                mode === 'work' ? 'stroke-primary' : 'stroke-green-600 dark:stroke-green-500'
+              }`}
+              strokeWidth="6"
+              strokeDasharray={circumference}
               strokeDashoffset={strokeDashoffset}
               strokeLinecap="round"
-              className="transition-all duration-1000 ease-out"
-              style={{
-                filter: 'drop-shadow(0 0 8px rgba(139, 92, 246, 0.4))'
-              }}
             />
           </svg>
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="text-center">
-              <div className="text-2xl font-bold font-mono">
-                {String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
-              </div>
-              <div className="text-xs text-muted-foreground">
-                Cycle {cycle}
-              </div>
-            </div>
+          <div className="absolute inset-0 flex flex-col items-center justify-center">
+            <span className="text-4xl font-black font-mono tracking-normal">
+              {String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
+            </span>
+            <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-1">
+              Cycle {cycle}
+            </span>
           </div>
         </div>
 
-        {/* Controls */}
-        <div className="flex justify-center space-x-3">
+        <div className="flex items-center space-x-4">
           <Button
-            onClick={toggle}
-            size="icon"
-            className={`rounded-full w-12 h-12 ${
-              isActive 
-                ? 'bg-destructive hover:bg-destructive/80' 
-                : 'bg-gradient-to-r from-neon-purple to-neon-blue hover:scale-110'
-            } transition-all duration-200`}
-          >
-            {isActive ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
-          </Button>
-          <Button
-            onClick={reset}
-            size="icon"
             variant="outline"
-            className="glass hover:glass-strong rounded-full w-12 h-12 transition-all duration-200 hover:scale-110"
+            size="icon"
+            onClick={reset}
+            className="rounded-full h-10 w-10 glass border-white/10 hover:bg-white/5"
           >
             <RotateCcw className="h-4 w-4" />
           </Button>
-        </div>
-
-        {/* Mode Switch */}
-        <div className="flex justify-center">
           <Button
-            onClick={handleModeSwitch}
-            variant="outline"
-            size="sm"
-            className="glass hover:glass-strong text-xs"
+            onClick={toggle}
+            size="lg"
+            className={`rounded-full h-14 w-14 shadow-xl shadow-primary/20 transition-transform active:scale-95 ${
+              isActive ? 'bg-destructive hover:bg-destructive/90' : 'bg-primary hover:bg-primary/90'
+            }`}
           >
-            Switch to {mode === 'work' ? 'Break' : 'Work'}
+            {isActive ? <Pause className="h-6 w-6" /> : <Play className="h-6 w-6 ml-1" />}
+          </Button>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={handleModeSwitch}
+            className="rounded-full h-10 w-10 glass border-white/10 hover:bg-white/5"
+          >
+             {mode === 'work' ? <Coffee className="h-4 w-4" /> : <Brain className="h-4 w-4" />}
           </Button>
         </div>
       </CardContent>

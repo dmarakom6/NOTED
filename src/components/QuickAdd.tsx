@@ -1,13 +1,16 @@
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus, Zap } from "lucide-react";
+import { Plus, Zap, StickyNote, CheckSquare } from "lucide-react";
 import { evaluateNoteContent } from "@/utils/noteEvaluator";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface QuickAddProps {
   onAddNote: (content: string, color?: string, evaluatedContent?: string | string[]) => void;
   onAddTask: (content: string) => void;
+  activeColor: string;
+  onColorChange: (color: string) => void;
 }
 
 const colors = [
@@ -19,12 +22,10 @@ const colors = [
   '#EF4444', // Red
 ];
 
-export const QuickAdd = ({ onAddNote, onAddTask }: QuickAddProps) => {
+export const QuickAdd = ({ onAddNote, onAddTask, activeColor, onColorChange }: QuickAddProps) => {
   const [content, setContent] = useState("");
-  const [selectedColor, setSelectedColor] = useState(colors[0]);
   const [mode, setMode] = useState<'Note' | 'Task'>('Note');
   const [evaluateMode, setEvaluateMode] = useState(false);
-
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,10 +33,10 @@ export const QuickAdd = ({ onAddNote, onAddTask }: QuickAddProps) => {
 
     if (mode === 'Note') {
       if (evaluateMode) {
-        const evaluatedContent = await evaluateNoteContent(content.trim(), selectedColor);
-        onAddNote(content.trim(), selectedColor, evaluatedContent);
+        const evaluatedContent = await evaluateNoteContent(content.trim(), activeColor);
+        onAddNote(content.trim(), activeColor, evaluatedContent);
       } else {
-        onAddNote(content.trim(), selectedColor);
+        onAddNote(content.trim(), activeColor);
       }
     } else {
       onAddTask(content.trim());
@@ -48,105 +49,86 @@ export const QuickAdd = ({ onAddNote, onAddTask }: QuickAddProps) => {
     if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
       handleSubmit(e);
     }
-
     if (e.key === 'e' && (e.ctrlKey || e.metaKey)) {
       setEvaluateMode(!evaluateMode);
-      e.preventDefault(); // Prevent default backspace behavior
+      e.preventDefault();
     }
   };
 
   return (
-    <div className="glass rounded-2xl p-6 animate-slide-up">
+    <div className="glass-strong rounded-2xl p-5 border border-white/20 shadow-xl animate-fade-in">
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold">Quick Add</h2>
-          <div className="flex rounded-lg bg-muted/20 p-1">
-            <Button
-              type="button"
-              variant={mode === 'Note' ? 'default' : 'ghost'}
-              size="sm"
-              onClick={() => setMode('Note')}
-              className="text-xs"
-            >
-              Note
-            </Button>
-            <Button
-              type="button"
-              variant={mode === 'Task' ? 'default' : 'ghost'}
-              size="sm"
-              onClick={() => setMode('Task')}
-              className="text-xs"
-            >
-              Task
-            </Button>
-          </div>
-        </div>
+          <Tabs value={mode} onValueChange={(v) => setMode(v as 'Note' | 'Task')} className="w-auto">
+            <TabsList className="bg-muted/50 p-1 h-9">
+              <TabsTrigger value="Note" className="text-xs px-3 py-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm">
+                <StickyNote className="w-3.5 h-3.5 mr-1.5" />
+                Note
+              </TabsTrigger>
+              <TabsTrigger value="Task" className="text-xs px-3 py-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm">
+                <CheckSquare className="w-3.5 h-3.5 mr-1.5" />
+                Task
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
 
-        <Textarea
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder={mode === 'Note' ? "What's on your mind?" : "What needs to be done?"}
-          className="glass border-white/20 resize-none min-h-[80px] focus:neon-glow transition-all duration-300"
-        />
-
-        {mode === 'Note' && (
-          <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
-            <div className="flex space-x-2">
+          {mode === 'Note' && (
+            <div className="flex items-center space-x-1.5">
               {colors.map((color) => (
                 <button
                   key={color}
                   type="button"
-                  onClick={() => setSelectedColor(color)}
-                  className={`w-6 h-6 rounded-full transition-all duration-200 ${selectedColor === color ? 'ring-2 ring-white/50 scale-110' : 'hover:scale-105'
-                    }`}
+                  onClick={() => onColorChange(color)}
+                  className={`w-5 h-5 rounded-full transition-all duration-200 border border-black/5 dark:border-white/10 ${
+                    activeColor === color ? 'ring-2 ring-primary ring-offset-2 ring-offset-background scale-110' : 'hover:scale-110 opacity-70 hover:opacity-100'
+                  }`}
                   style={{ backgroundColor: color }}
                 />
               ))}
             </div>
-            <div className="flex flex-row items-center space-x-2">
+          )}
+        </div>
+
+        <div className="relative">
+          <Textarea
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder={mode === 'Note' ? "What's on your mind?" : "What needs to be done?"}
+            className="glass bg-white/5 dark:bg-black/5 border-white/10 resize-none min-h-[100px] text-sm focus-visible:ring-primary/30 transition-all placeholder:text-muted-foreground/50"
+          />
+        </div>
+
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center space-x-2">
+            {mode === 'Note' && (
               <Button
                 type="button"
-                variant="outline"
+                variant="ghost"
                 size="sm"
                 onClick={() => setEvaluateMode(!evaluateMode)}
-                className={`glass text-xs transition-all duration-300 ease-in-out transform ${evaluateMode
-                  ? 'evaluate-active'
-                  : 'evaluate-inactive'
-                  }`}
+                className={`text-xs h-9 px-3 transition-colors ${
+                  evaluateMode ? 'bg-primary/20 text-primary hover:bg-primary/30' : 'text-muted-foreground'
+                }`}
               >
-                <Zap className={`w-3 h-3 mr-1 transition-transform duration-300 ${evaluateMode ? 'animate-pulse' : ''}`} />
+                <Zap className={`w-3.5 h-3.5 mr-1.5 ${evaluateMode ? 'fill-primary' : ''}`} />
                 Evaluate
               </Button>
-
-              <Button
-                type="submit"
-                disabled={!content.trim()}
-                className="bg-gradient-to-r from-neon-purple to-neon-blue hover:scale-105 transition-all duration-200"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Add {mode}
-              </Button>
-            </div>
+            )}
+            <span className="hidden sm:inline text-[10px] uppercase tracking-wide text-muted-foreground/60 font-bold">
+              Ctrl+Enter to save
+            </span>
           </div>
-        )}
 
-        {mode === 'Task' && (
-          <div className="flex justify-end">
-            <Button
-              type="submit"
-              disabled={!content.trim()}
-              className="bg-gradient-to-r from-neon-purple to-neon-blue hover:scale-105 transition-all duration-200"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Add Task
-            </Button>
-          </div>
-        )}
-
-        <p className="text-xs text-muted-foreground">
-          Press Ctrl+Enter to quickly add
-        </p>
+          <Button
+            type="submit"
+            disabled={!content.trim()}
+            className="h-9 px-5 text-xs font-bold shadow-lg shadow-primary/20"
+          >
+            <Plus className="w-3.5 h-3.5 mr-1.5" />
+            Create {mode}
+          </Button>
+        </div>
       </form>
     </div>
   );

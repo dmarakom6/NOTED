@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Header } from "@/components/Header";
 import { NotesGrid } from "@/components/NotesGrid";
@@ -8,6 +9,8 @@ import { FocusMode } from "@/components/FocusMode";
 import { NoteViewer } from "@/components/NoteViewer";
 import { indexedDBStorage } from "@/utils/indexedDBStorage";
 import { toast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
+import { LayoutGrid, List, Columns } from "lucide-react";
 
 export interface Note {
   id: string;
@@ -32,7 +35,16 @@ const Index = () => {
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
   const [isNoteViewerOpen, setIsNoteViewerOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [focusTime, setFocusTime] = useState(0); // in seconds
+  const [focusTime, setFocusTime] = useState(0);
+  const [activeColor, setActiveColor] = useState("#8B5CF6");
+  const [viewMode, setViewMode] = useState<'grid' | 'list' | 'masonry'>('masonry');
+
+  // Dynamic accent color effect
+  useEffect(() => {
+    const colorToApply = selectedNote ? selectedNote.color : activeColor;
+    document.documentElement.style.setProperty('--primary', colorToApply);
+    document.documentElement.style.setProperty('--ring', colorToApply);
+  }, [selectedNote, activeColor]);
 
   useEffect(() => {
     let timer: NodeJS.Timeout | null = null;
@@ -41,32 +53,13 @@ const Index = () => {
         setFocusTime((prev) => prev + 1);
       }, 1000);
     } else {
-      setFocusTime(0); // reset when not in focus mode
+      setFocusTime(0);
     }
     return () => {
       if (timer) clearInterval(timer);
     };
   }, [focusMode]);
 
-
-  useEffect(() => { // Handle page visibility changes to update the title
-  const originalTitle = document.title;
-  const handleVisibilityChange = () => {
-    if (document.hidden) {
-      document.title = "Come back!";
-    } else {
-      document.title = originalTitle;
-    }
-  };
-  document.addEventListener("visibilitychange", handleVisibilityChange);
-  return () => {
-    document.removeEventListener("visibilitychange", handleVisibilityChange);
-    document.title = originalTitle;
-  };
-}, []);
-
-
-  // Load data from IndexedDB on mount
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -75,68 +68,16 @@ const Index = () => {
           indexedDBStorage.loadNotes(),
           indexedDBStorage.loadTasks()
         ]);
-
         setNotes(loadedNotes);
         setTasks(loadedTasks);
       } catch (error) {
-        console.error('Error loading data from IndexedDB:', error);
-
-        // Fallback to localStorage if IndexedDB fails
-        const savedNotes = localStorage.getItem('noted-notes');
-        const savedTasks = localStorage.getItem('noted-tasks');
-
-        if (savedNotes) {
-          try {
-            const parsedNotes = JSON.parse(savedNotes).map((note: Note) => ({
-              ...note,
-              createdAt: new Date(note.createdAt)
-            }));
-            setNotes(parsedNotes);
-          } catch (error) {
-            console.error('Error loading notes from localStorage:', error);
-          }
-        }
-
-        if (savedTasks) {
-          try {
-            const parsedTasks = JSON.parse(savedTasks).map((task: Task) => ({
-              ...task,
-              completedAt: task.completedAt ? new Date(task.completedAt) : undefined
-            }));
-            setTasks(parsedTasks);
-          } catch (error) {
-            console.error('Error loading tasks from localStorage:', error);
-          }
-        }
+        console.error('Error loading data:', error);
       } finally {
         setIsLoading(false);
       }
     };
-
     loadData();
   }, []);
-
-  // Save notes to IndexedDB when notes change
-  useEffect(() => {
-    if (!isLoading) {
-      indexedDBStorage.saveNotes(notes).catch(error => {
-        console.error('Error saving notes to IndexedDB:', error);
-        // Fallback to localStorage
-        localStorage.setItem('noted-notes', JSON.stringify(notes));
-      });
-    }
-  }, [notes, isLoading]);
-
-  // Save tasks to IndexedDB when tasks change
-  useEffect(() => {
-    if (!isLoading) {
-      indexedDBStorage.saveTasks(tasks).catch(error => {
-        console.error('Error saving tasks to IndexedDB:', error);
-        // Fallback to localStorage
-        localStorage.setItem('noted-tasks', JSON.stringify(tasks));
-      });
-    }
-  }, [tasks, isLoading]);
 
   const addNote = (content: string, color: string = '#8B5CF6', evaluatedContent?: string | string[]) => {
     const newNote: Note = {
@@ -148,16 +89,24 @@ const Index = () => {
       pinned: false
     };
     setNotes(prev => [newNote, ...prev]);
+    indexedDBStorage.saveNote(newNote).catch(console.error);
   };
 
   const deleteNote = (id: string) => {
     setNotes(prev => prev.filter(note => note.id !== id));
+    indexedDBStorage.deleteNote(id).catch(console.error);
   };
 
-  const updateNote = (id: string, content: string) => {
-    setNotes(prev => prev.map(note =>
-      note.id === id ? { ...note, content } : note
-    ));
+  const updateNote = (id: string, content: string, evaluatedContent?: string | string[]) => {
+    setNotes(prev => prev.map(note => {
+      if (note.id === id) {
+        const updated = { ...note, content, evaluatedContent };
+        indexedDBStorage.saveNote(updated).catch(console.error);
+        if (selectedNote?.id === id) setSelectedNote(updated);
+        return updated;
+      }
+      return note;
+    }));
   };
 
   const addTask = (content: string) => {
@@ -167,22 +116,27 @@ const Index = () => {
       completed: false
     };
     setTasks(prev => [newTask, ...prev]);
+    indexedDBStorage.saveTask(newTask).catch(console.error);
   };
 
   const toggleTask = (id: string) => {
-    setTasks(prev => prev.map(task =>
-      task.id === id
-        ? {
+    setTasks(prev => prev.map(task => {
+      if (task.id === id) {
+        const updated = {
           ...task,
           completed: !task.completed,
           completedAt: !task.completed ? new Date() : undefined
-        }
-        : task
-    ));
+        };
+        indexedDBStorage.saveTask(updated).catch(console.error);
+        return updated;
+      }
+      return task;
+    }));
   };
 
   const deleteTask = (id: string) => {
     setTasks(prev => prev.filter(task => task.id !== id));
+    indexedDBStorage.deleteTask(id).catch(console.error);
   };
 
   const convertNoteToTask = (noteContent: string, noteId: string) => {
@@ -199,105 +153,150 @@ const Index = () => {
     setNotes(prev => {
       const note = prev.find(n => n.id === id);
       if (!note) return prev;
-
       const pinnedCount = prev.filter(n => n.pinned).length;
-
-      // If trying to pin and already have 3 pinned notes, don't allow
-      if (!note.pinned && pinnedCount >= 3) {
+      if (!note.pinned && pinnedCount >= 6) {
+        toast({ title: "Limit reached", description: "You can pin up to 6 notes.", variant: "destructive" });
         return prev;
       }
-
-      return prev.map(n =>
-        n.id === id ? { ...n, pinned: !n.pinned } : n
-      );
+      return prev.map(n => {
+        if (n.id === id) {
+          const updated = { ...n, pinned: !n.pinned };
+          indexedDBStorage.saveNote(updated).catch(console.error);
+          return updated;
+        }
+        return n;
+      });
     });
   };
 
-  const handleViewNote = async (note: Note) => {
-    if (note.evaluatedContent && note.evaluatedContent instanceof Promise) {
-      console.log(note.evaluatedContent);
-      setIsNoteViewerOpen(true);
-    } else {
-      setSelectedNote(note);
-      setIsNoteViewerOpen(true);
-    }
+  const handleViewNote = (note: Note) => {
+    setSelectedNote(note);
+    setIsNoteViewerOpen(true);
   };
+
+  if (focusMode) {
+    return (
+      <FocusMode 
+        onExit={() => {
+          const sessionTime = focusTime;
+          setFocusMode(false);
+          if (sessionTime / 60 >= 5) {
+            toast({
+              title: "Session Complete",
+              description: `You focused for ${Math.floor(sessionTime / 60)} minutes. Great work!`,
+            });
+          } else {
+            toast({
+              title: "Session Ended Early",
+              description: "Every minute counts. Try aiming for 25 minutes next time!",
+              variant: "destructive",
+            });
+          }
+        }} 
+      />
+    );
+  }
+
+  const sortedNotes = [...notes].sort((a, b) => {
+    if (a.pinned && !b.pinned) return -1;
+    if (!a.pinned && b.pinned) return 1;
+    return b.createdAt.getTime() - a.createdAt.getTime();
+  });
 
   const completedToday = tasks.filter(task => {
     if (!task.completed || !task.completedAt) return false;
     const today = new Date();
-    const completedDate = task.completedAt;
-    return (
-      today.getDate() === completedDate.getDate() &&
-      today.getMonth() === completedDate.getMonth() &&
-      today.getFullYear() === completedDate.getFullYear()
-    );
-  });
-
-  if (focusMode) {
-    return <FocusMode onExit={() => {
-      setFocusMode(false);
-      if (focusTime / 60 >= 5) {
-        toast({
-          title: "Laser Sharp.",
-          description: `You kept your focus for ${Math.floor(focusTime / 60)} minutes.`,
-        });
-      } else {
-        toast({
-          title: "Distraction Detected!",
-          description: `You were in focus mode for less than 5 minutes. Try to focus longer next time.`,
-          variant: "destructive",
-        });
-      }
-    }} />;
-  }
-
-  // Sort notes to show pinned ones first
-  const sortedNotes = [...notes].sort((a, b) => {
-    if (a.pinned && !b.pinned) return -1;
-    if (!a.pinned && b.pinned) return 1;
-    return 0;
+    const completedDate = new Date(task.completedAt);
+    return today.toDateString() === completedDate.toDateString();
   });
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background via-background to-purple-900/20 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-neon-purple mx-auto"></div>
-          <p className="mt-4 text-muted-foreground">Loading your notes...</p>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="flex flex-col items-center space-y-4">
+          <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+          <p className="text-sm font-bold uppercase tracking-widest text-muted-foreground animate-pulse">Loading Noted.</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-purple-900/20">
-      {/* Fixed header on mobile, static on larger screens */}
+    <div className="min-h-screen flex flex-col">
       <Header
         onFocusMode={() => setFocusMode(true)}
         notes={notes}
         tasks={tasks}
       />
 
-      {/* Main content with top padding only for mobile fixed header */}
-      <div className="container mx-auto px-4 pt-20 sm:pt-6 pb-6 space-y-6">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Main content area */}
-          <div className="lg:col-span-2 space-y-6">
-            <QuickAdd onAddNote={addNote} onAddTask={addTask} />
-            <NotesGrid
-              notes={sortedNotes}
-              onDeleteNote={deleteNote}
-              onUpdateNote={updateNote}
-              onConvertToTask={convertNoteToTask}
-              onTogglePin={togglePinNote}
-              onViewNote={handleViewNote}
-            />
+      <main className="flex-1 container mx-auto px-4 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          {/* Sidebar Left - Stats/Timer */}
+          <div className="lg:col-span-3 space-y-6 hidden lg:block">
+            <PomodoroTimer />
           </div>
 
-          {/* Sidebar */}
-          <div className="space-y-6">
-            <PomodoroTimer />
+          {/* Center Content - Notes */}
+          <div className="lg:col-span-6 space-y-8">
+            <QuickAdd 
+              onAddNote={addNote} 
+              onAddTask={addTask} 
+              activeColor={activeColor}
+              onColorChange={setActiveColor}
+            />
+            <div className="space-y-4">
+              <div className="flex items-center justify-between px-1">
+                <div className="flex items-center space-x-3">
+                   <h2 className="text-sm font-black uppercase tracking-widest text-muted-foreground/60">Your Workspace</h2>
+                   <div className="flex bg-muted/50 p-1 rounded-lg border border-white/5">
+                      <Button 
+                        variant="ghost"
+                        size="icon" 
+                        className={`h-6 w-6 rounded-md transition-all ${viewMode === 'grid' ? 'bg-primary text-primary-foreground shadow-sm shadow-primary/20' : 'text-muted-foreground hover:text-foreground'}`}
+                        onClick={() => setViewMode('grid')}
+                        title="Grid View"
+                      >
+                        <LayoutGrid className="w-3 h-3" />
+                      </Button>
+                      <Button 
+                        variant="ghost"
+                        size="icon" 
+                        className={`h-6 w-6 rounded-md transition-all ${viewMode === 'masonry' ? 'bg-primary text-primary-foreground shadow-sm shadow-primary/20' : 'text-muted-foreground hover:text-foreground'}`}
+                        onClick={() => setViewMode('masonry')}
+                        title="Masonry View"
+                      >
+                        <Columns className="w-3 h-3" />
+                      </Button>
+                      <Button 
+                        variant="ghost"
+                        size="icon" 
+                        className={`h-6 w-6 rounded-md transition-all ${viewMode === 'list' ? 'bg-primary text-primary-foreground shadow-sm shadow-primary/20' : 'text-muted-foreground hover:text-foreground'}`}
+                        onClick={() => setViewMode('list')}
+                        title="List View"
+                      >
+                        <List className="w-3 h-3" />
+                      </Button>
+                   </div>
+                </div>
+                <span className="text-[10px] font-bold bg-primary/10 text-primary px-2 py-0.5 rounded-full">{notes.length} Notes</span>
+              </div>
+              <NotesGrid
+                notes={sortedNotes}
+                onDeleteNote={deleteNote}
+                onUpdateNote={updateNote}
+                onConvertToTask={convertNoteToTask}
+                onTogglePin={togglePinNote}
+                onViewNote={handleViewNote}
+                viewMode={viewMode}
+              />
+            </div>
+          </div>
+
+          {/* Sidebar Right - Tasks & Mobile Timer */}
+          <div className="lg:col-span-3 space-y-6">
+            <div className="lg:hidden">
+              <PomodoroTimer />
+            </div>
             <TasksList
               tasks={tasks}
               onToggleTask={toggleTask}
@@ -307,7 +306,7 @@ const Index = () => {
             />
           </div>
         </div>
-      </div>
+      </main>
 
       <NoteViewer
         note={selectedNote}

@@ -1,24 +1,21 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, BookOpen, Users, MessageCircle, ChevronRight, ArrowRight, NotepadText, Settings } from "lucide-react";
+import { Card } from "@/components/ui/card";
+import { ArrowLeft, ChevronRight, NotepadText, Sparkles, Brain, Compass, HelpCircle, Share2, Settings, Heart, Server, Cloud, ShieldCheck, Box, Terminal, ClipboardCheck, Code2, Clipboard } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Support } from "@/components/Support";
-import { Share } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
 
 const Docs = () => {
   const [activeSection, setActiveSection] = useState("getting-started");
 
   const sections = [
-    { id: "getting-started", title: "Getting Started", icon: "🚀" },
-    { id: "features", title: "Features", icon: "✨" },
-    { id: "evaluating", title: "Evaluating Notes", icon: "⚡️" },
-    { id: "productivity-tips", title: "Productivity Tips", icon: "💡" },
-    { id: "shortcuts", title: "Keyboard Shortcuts", icon: "⌨️" },
-    { id: "export-import", title: "Export & Import", icon: "📁" },
-    { id: "troubleshooting", title: "Troubleshooting", icon: "🔧" },
-    { id: "support", title: "Support my Work", icon: "🙏🏻" },
+    { id: "getting-started", title: "Getting Started", icon: <Sparkles className="w-4 h-4" /> },
+    { id: "evaluating", title: "Smart Notes", icon: <Brain className="w-4 h-4" /> },
+    { id: "productivity-tips", title: "Productivity", icon: <Compass className="w-4 h-4" /> },
+    { id: "self-hosting", title: "Self-Hosting", icon: <Server className="w-4 h-4" /> },
+    { id: "support", title: "Support", icon: <Heart className="w-4 h-4" /> },
   ];
 
   const scrollToSection = (sectionId: string) => {
@@ -29,408 +26,192 @@ const Docs = () => {
     }
   };
 
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    toast({ description: "Command copied to clipboard!" });
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-purple-900/20">
-      <div className="container mx-auto px-4 py-6">
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto px-4 py-8 max-w-6xl">
         {/* Header */}
-        <div className="flex items-center space-x-4 mb-8">
-          <Link to="/">
-            <Button variant="ghost" size="icon" className="glass">
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-          </Link>
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-neon-purple to-neon-blue bg-clip-text text-transparent">
-              Documentation
-            </h1>
-            <p className="text-muted-foreground text-sm sm:text-base">Everything you need to know about using <span className="text-neon-purple">NOTED.</span></p>
+        <div className="flex items-center justify-between mb-12">
+          <div className="flex items-center space-x-4">
+            <Link to="/">
+              <Button variant="ghost" size="icon" className="glass rounded-full">
+                <ArrowLeft className="h-4 w-4" />
+              </Button>
+            </Link>
+            <div>
+              <h1 className="text-2xl font-black tracking-tight">Documentation</h1>
+              <p className="text-xs text-muted-foreground font-bold uppercase tracking-wider">The NOTED. Docs</p>
+            </div>
           </div>
+
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
           {/* Navigation Sidebar */}
-          <div className="lg:col-span-1">
-            <Card className="glass-strong border-white/20 sticky top-6">
-              <CardHeader>
-                <CardTitle className="text-lg">Contents</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <nav className="space-y-2">
-                  {sections.map((section) => (
-                    <button
-                      key={section.id}
-                      onClick={() => scrollToSection(section.id)}
-                      className={`w-full text-left p-3 rounded-lg transition-all duration-200 flex items-center space-x-3 ${activeSection === section.id
-                        ? 'bg-primary/20 border border-primary/30'
-                        : 'hover:bg-white/5'
-                        }`}
-                    >
-                      <span className="text-lg">{section.icon}</span>
-                      <span className="text-sm font-medium">{section.title}</span>
-                      <ChevronRight className="h-4 w-4 ml-auto opacity-50" />
-                    </button>
-                  ))}
-                </nav>
-              </CardContent>
-            </Card>
+          <div className="lg:col-span-3">
+            <div className="sticky top-24 space-y-1">
+              {sections.map((section) => (
+                <button
+                  key={section.id}
+                  onClick={() => scrollToSection(section.id)}
+                  className={`w-full text-left px-4 py-3 rounded-xl transition-all flex items-center space-x-3 ${activeSection === section.id
+                    ? 'bg-primary/10 text-primary font-bold border border-primary/20'
+                    : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
+                    }`}
+                >
+                  {section.icon}
+                  <span className="text-xs uppercase tracking-wider">{section.title}</span>
+                  <ChevronRight className={`h-3 w-3 ml-auto transition-transform ${activeSection === section.id ? 'rotate-90' : 'opacity-30'}`} />
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* Main Content */}
-          <div className="lg:col-span-3 space-y-8">
-            {/* Hero Section */}
-            <div className="glass rounded-2xl p-6 sm:p-8 text-center">
-              <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-neon-purple to-neon-blue rounded-2xl flex items-center justify-center">
-                <BookOpen className="h-8 w-8 text-white" />
-              </div>
-              <h2 className="text-xl sm:text-2xl font-semibold mb-2">Welcome to the Knowledge Base</h2>
-              <p className="text-muted-foreground max-w-2xl mx-auto text-sm sm:text-base">
-                This documentation will help you get the most out of NOTED.
-                Learn about features, tips, and best practices to boost your workflow.
-              </p>
-            </div>
-
+          <div className="lg:col-span-9 space-y-12 pb-24">
             {/* Getting Started Section */}
-            <section id="getting-started" className="scroll-mt-6">
-              <Card className="glass-strong border-white/20">
-                <CardHeader>
-                  <CardTitle className="text-xl sm:text-2xl flex items-center space-x-3">
-                    <span className="text-2xl">🚀</span>
-                    <span>Getting Started</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div>
-                    <h3 className="text-lg font-semibold mb-3">Quick Setup</h3>
-                    <div className="space-y-4">
-                      <div className="p-4 rounded-lg bg-gradient-to-r from-blue-500/10 to-blue-600/10 border border-blue-500/20">
-                        <h4 className="font-medium mb-2">1. Create Your First Note</h4>
-                        <p className="text-sm text-muted-foreground">Click the "+" button to add your first note. Notes support markdown and can be pinned for quick access.</p>
+            <section id="getting-started" className="scroll-mt-24 space-y-6">
+              <div className="space-y-2">
+                <h2 className="text-3xl font-black tracking-tight">Getting Started</h2>
+                <p className="text-muted-foreground">Your first steps towards a more organized life.</p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {[
+                  { title: "Quick Notes", desc: "Use the Quick Add bar to capture thoughts instantly.", color: "bg-blue-500" },
+                  { title: "Task Lists", desc: "Manage your to-dos alongside your notes seamlessly.", color: "bg-green-500" },
+                  { title: "Focus Mode", desc: "Enter a distraction-free space for deep work.", color: "bg-primary" }
+                ].map((step, i) => (
+                  <Card key={i} className="glass border-white/10 p-6 space-y-3">
+                    <div className={`w-8 h-8 ${step.color} rounded-lg flex items-center justify-center text-white font-black text-xs`}>{i + 1}</div>
+                    <h3 className="font-bold text-sm uppercase tracking-tight">{step.title}</h3>
+                    <p className="text-xs text-muted-foreground leading-relaxed">{step.desc}</p>
+                  </Card>
+                ))}
+              </div>
+            </section>
+
+            {/* Smart Notes Section */}
+            <section id="evaluating" className="scroll-mt-24 space-y-6">
+              <div className="space-y-2">
+                <h2 className="text-3xl font-black tracking-tight">Smart Notes</h2>
+                <p className="text-muted-foreground font-medium">Enable "Evaluate" mode to transform your notes into living documents. Use double braces {"{}"} for modules.</p>
+              </div>
+
+              <Card className="glass-strong border-white/10 overflow-hidden">
+                <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-8">
+                  {[
+                    { name: "LaTeX Math", tag: "{LaTeX(e=mc^2)}", desc: "Renders professional mathematical formulas. Compatible with standard TeX syntax." },
+                    { name: "Base System", tag: "{Base(255:10:16)}", desc: "Useful for binary, hex, and octal conversions." },
+                    { name: "Memorize", tag: "{Memorize(Question:Answer)}", desc: "A 2-column centered flashcard. The answer is blurred until you hover your mouse." },
+                    { name: "Progress Bar", tag: "{Progress(current/total)}", desc: "A sleek visual tracker for study goals, project status, or habit building." },
+                    { name: "Weighted Average", tag: "{WeightedAvg((85,2),(95,1))}", desc: "Calculates averages based on weights. Format: (value, weight)." },
+                    { name: "Countdown", tag: "{Countdown(2024-12-25)}", desc: "Displays days remaining until a specific date. Shows 'Overdue' if passed." },
+                    { name: "JavaScript", tag: "{js(Math.PI * 2)}", desc: "Raw code evaluation for logic or complex transformations. High power, high risk." },
+                    { name: "Quotes", tag: "{Quote}", desc: "Inserts a motivational programming quote into your note to keep the productivity high." },
+                    { name: "Weather", tag: "{Weather.temp}", desc: "Real-time temperature and UV index based on your current location." },
+                    { name: "Time & Date", tag: "{Time.time}", desc: "Current time and date formatting (refreshes on every note view)." }
+                  ].map((mod) => (
+                    <div key={mod.name} className="space-y-2 group">
+                      <div className="flex items-center justify-between border-b border-white/5 pb-1 group-hover:border-primary/20 transition-colors">
+                        <h4 className="text-xs font-black uppercase tracking-widest text-primary/80">{mod.name}</h4>
+                        <code className="text-[10px] bg-muted px-1.5 py-0.5 rounded font-mono font-bold">{mod.tag}</code>
                       </div>
-                      <div className="p-4 rounded-lg bg-gradient-to-r from-green-500/10 to-green-600/10 border border-green-500/20">
-                        <h4 className="font-medium mb-2">2. Add Your First Task</h4>
-                        <p className="text-sm text-muted-foreground">Use the task section to create actionable items. Check them off as you complete them.</p>
-                      </div>
-                      <div className="p-4 rounded-lg bg-gradient-to-r from-purple-500/10 to-purple-600/10 border border-purple-500/20">
-                        <h4 className="font-medium mb-2">3. Try Focus Mode</h4>
-                        <p className="text-sm text-muted-foreground">Use the Pomodoro timer or try Focus Mode to boost your productivity with timed work sessions.</p>
-                      </div>
+                      <p className="text-[11px] text-muted-foreground leading-snug">{mod.desc}</p>
                     </div>
-                  </div>
-                </CardContent>
+                  ))}
+                </div>
               </Card>
             </section>
 
-            {/* Features Section */}
-            <section id="features" className="scroll-mt-6">
-              <Card className="glass-strong border-white/20">
-                <CardHeader>
-                  <CardTitle className="text-xl sm:text-2xl flex items-center space-x-3">
-                    <span className="text-2xl">✨</span>
-                    <span>Features</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="p-4 rounded-lg glass border border-white/10">
-                      <h4 className="font-medium mb-2">📝 Take Notes</h4>
-                      <p className="text-sm text-muted-foreground">Create, edit, and organize your thoughts with our intuitive note-taking system.</p>
+            {/* Self-Hosting Section */}
+            <section id="self-hosting" className="scroll-mt-24 space-y-6">
+              <div className="space-y-2">
+                <h2 className="text-3xl font-black tracking-tight">Self-Hosting & Docker</h2>
+                <p className="text-muted-foreground font-medium">Deploy NOTED. on your own infrastructure.</p>
+              </div>
+
+              <div className="flex flex-wrap flex-col md:flex-row justify-between gap-6">
+                <div className="w-full md:flex-1 space-y-4 p-6 glass rounded-2xl border border-white/10">
+                  <div className="flex items-center space-x-3 text-primary">
+                    <Box className="w-5 h-5" />
+                    <h3 className="font-bold text-sm uppercase tracking-wider">Docker Deployment</h3>
+                  </div>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    NOTED. is containerized using <strong>Nginx</strong> and <strong>Node 20-alpine</strong>. This makes it extremely lightweight (approx. 20MB compressed). After cloning from the repo, do:
+                  </p>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-black uppercase tracking-widest opacity-40">Command</span>
+                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => copyToClipboard("docker-compose up -d")}>
+                        <Clipboard className="w-3 h-3" />
+                      </Button>
                     </div>
-                    <div className="p-4 rounded-lg glass border border-white/10">
-                      <h4 className="font-medium mb-2">✅ Task Management</h4>
-                      <p className="text-sm text-muted-foreground">Keep track of your to-dos and mark them complete when finished.</p>
-                    </div>
-                    <div className="p-4 rounded-lg glass border border-white/10">
-                      <h4 className="font-medium mb-2">⏰ Pomodoro Timer</h4>
-                      <p className="text-sm text-muted-foreground">Built-in timer for focused work sessions with break reminders.</p>
-                    </div>
-                    <div className="p-4 rounded-lg glass border border-white/10">
-                      <h4 className="font-medium mb-2">📌 Pin Important Items</h4>
-                      <p className="text-sm text-muted-foreground">Pin up to 3 notes for quick access to your most important information.</p>
+                    <div className="bg-black/20 dark:bg-black/40 p-4 rounded-xl font-mono text-xs border border-white/5 relative group">
+                      <code className="text-primary-foreground/80">docker-compose up -d</code>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+
+                <div className="w-full md:flex-1 space-y-4 p-6 glass rounded-2xl border border-white/10">
+                  <div className="flex items-center space-x-3 text-primary">
+                    <Cloud className="w-5 h-5" />
+                    <h3 className="font-bold text-sm uppercase tracking-wider">Sync Strategy</h3>
+                  </div>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    While the app is static, you can achieve cross-device sync by:
+                  </p>
+                  <ul className="text-[11px] space-y-2 text-muted-foreground">
+                    <li className="flex items-start"><ChevronRight className="w-3 h-3 mr-2 mt-0.5 text-primary" /> Exporting JSON and importing on your new device.</li>
+                    <li className="flex items-start"><ChevronRight className="w-3 h-3 mr-2 mt-0.5 text-primary" /> Self-hosting a private repo and using GitHub Pages.</li>
+                    <li className="flex items-start"><ChevronRight className="w-3 h-3 mr-2 mt-0.5 text-primary" /> Modifying the storage layer to point to a private Database.</li>
+                  </ul>
+                </div>
+              </div>
+
             </section>
-
-
-            <section id="evaluating" className="scroll-mt-6">
-              <Card className="glass-strong border-white/20 bg-gradient-to-r from-neon-purple/20 to-neon-blue/20 border hover:border-neon-purple/50">
-                <CardHeader>
-                  <CardTitle className="text-xl sm:text-2xl flex items-center space-x-3 ">
-                    <span className="text-2xl">⚡️</span>
-                    <span>Evaluating Notes</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <p>
-                    The "Evaluate" toggle is used to parse a new note and evaluate mathematical expressions and Modules.
-                  </p>
-                  <p>
-                    <span className="font-bold pr-1 text-neon-purple">Modules</span> are unique identifiers for various evaluations and are placed inside curly braces <code>{"{}"}</code>. These include:
-                  </p>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {/* Weather Module */}
-                    <div className="p-4 rounded-lg glass border border-white/10">
-                      <h4 className="font-medium mb-2"><code>Weather</code></h4>
-                      <p className="text-sm text-muted-foreground">
-                        Children: <span className="bg-glass-strong text-orange-300"><code>temp</code>, <code>uv</code></span>.
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        Fetches information for real time weather based on location.
-                      </p>
-                    </div>
-                    {/* Location Module */}
-                    <div className="p-4 rounded-lg glass border border-white/10">
-                      <h4 className="font-medium mb-2"><code>Location</code></h4>
-                      <p className="text-sm text-muted-foreground">
-                        Children: <span className="bg-glass-strong text-orange-300"><code>here</code></span>.
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        Displays your current coordinates and location using <code>Navigator.geolocation</code>.
-                      </p>
-                    </div>
-                    {/* JS Module */}
-                    <div className="p-4 rounded-lg glass border border-white/10">
-                      <h4 className="font-medium mb-2"><code>js(...expr)</code></h4>
-                      <p className="text-sm text-muted-foreground">
-                        Children: <span className="bg-glass-strong text-orange-300"><code>expression</code></span>.
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        Evaluates a JavaScript expression and returns the result. Useful for quick calculations or logic. Be careful with commands that can cause side effects, as they will be executed.
-                      </p>
-                    </div>
-                    {/* Memorize Module */}
-                    <div className="p-4 rounded-lg glass border border-white/10">
-                      <h4 className="font-medium mb-2"><code>Memorize(string:string)</code></h4>
-                      <p className="text-sm text-muted-foreground">
-                        Children: <span className="bg-glass-strong text-orange-300"><code>Pair(string, string)</code></span>.
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        Creates a <a className="text-neon-purple" href="https://en.wikipedia.org/wiki/Flashcard">flashcard</a> for memorization. The first string is the question, and the second is the answer.
-                      </p>
-                    </div>
-                    {/* Math Module */}
-                    <div className="p-4 rounded-lg glass border border-white/10">
-                      <h4 className="font-medium mb-2"><code>Math</code></h4>
-                      <p className="text-sm text-muted-foreground">
-                        Children: <span className="bg-glass-strong text-orange-300"><code>expression</code></span>.
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        Evaluates a mathematical expression and returns the result. Supports basic arithmetic and some functions. It does not need curly braces, as basic expressions are automatically parsed into output.
-                        Binary conversion <code>bin(number)</code> and functions like <code>exp(number)</code>, <code>log(number)</code> are also supported.
-                      </p>
-                    </div>
-                    {/* Time Module */}
-                    <div className="p-4 rounded-lg glass border border-white/10">
-                      <h4 className="font-medium mb-2"><code>Time</code></h4>
-                      <p className="text-sm text-muted-foreground">
-                        Children: <span className="bg-glass-strong text-orange-300"><code>time</code>, <code>day</code></span>.
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        Displays the current time or day.
-                      </p>
-                    </div>
-                    {/* Random Module */}
-                    <div className="p-4 rounded-lg glass border border-white/10">
-                      <h4 className="font-medium mb-2"><code>Random</code></h4>
-                      <p className="text-sm text-muted-foreground">
-                        Children: <span className="bg-glass-strong text-orange-300"><code>number</code>, <code>hash</code></span>.
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        Displays a random number or hash. Useful for generating unique identifiers or random values.
-                      </p>
-                    </div>
-                    {/* Encode Module */}
-                    <div className="p-4 rounded-lg glass border border-white/10">
-                      <h4 className="font-medium mb-2"><code>Encode(...string)</code></h4>
-                      <p className="text-sm text-muted-foreground">
-                        Children: <span className="bg-glass-strong text-orange-300"><code>expression (string)</code></span>.
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        Encodes a string using SHA-256 encoding. Useful for obfuscating sensitive information or data.
-                      </p>
-                    </div>
-                    {/* Note Module */}
-                    <div className="p-4 rounded-lg glass border border-white/10">
-                      <h4 className="font-medium mb-2"><code>Note</code></h4>
-                      <p className="text-sm text-muted-foreground">
-                        Children: <span className="bg-glass-strong text-orange-300"><code>color</code>, <code>size</code></span>.
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        Returns information about the new note.
-                      </p>
-                    </div>
-                    {/* Client Module */}
-                    <div className="p-4 rounded-lg glass border border-white/10">
-                      <h4 className="font-medium mb-2"><code>Client</code></h4>
-                      <p className="text-sm text-muted-foreground">
-                        Children: <span className="bg-glass-strong text-orange-300"><code>info</code></span>.
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        Returns information about the client (browser) in Object format.
-                      </p>
-                    </div>
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    Other modules include Markdown, Emoji and special word evaluation.
-                  </p>
-                  {/* Examples */}
-                  <div className="mt-8">
-                    <h3 className="font-semibold text-neon-purple mb-2">Examples</h3>
-                    <div className="space-y-3">
-                      <div className="p-3 rounded-lg glass border border-white/10">
-                        <code className="block text-neon-blue mb-1">
-                          {"10 + {exp(0)} + {bin(4)}"}
-                        </code>
-                        <span className="text-xs text-muted-foreground">
-                          Evaluates the math expression and returns <b>111</b>.
-                        </span>
-                      </div>
-                      <div className="p-3 rounded-lg glass border border-white/10">
-                        <code className="block text-neon-blue mb-1">
-                          {"{js: [1,2,3].map(x => x * 2)}"}
-                        </code>
-                        <span className="text-xs text-muted-foreground">
-                          Runs the JavaScript code and returns <b>[2, 4, 6]</b>.
-                        </span>
-                      </div>
-                      <div className="p-3 rounded-lg glass border border-white/10">
-                        <code className="block text-neon-blue mb-1">
-                          {"{Memorize(What is the capital of France?:Paris)}"}
-                        </code>
-                        <span className="text-xs text-muted-foreground">
-                          Creates a flashcard for memorization with the question "What is the capital of France?" and the answer "Paris" when clicked on.
-                        </span>
-                      </div>
-                      <div className="p-3 rounded-lg glass border border-white/10">
-                        <code className="block text-neon-blue mb-1">
-                          {"{Weather.temp}"}
-                        </code>
-                        <span className="text-xs text-muted-foreground">
-                          Shows the current temperature for your location.
-                        </span>
-                      </div>
-                      <div className="p-3 rounded-lg glass border border-white/10">
-                        <code className="block text-neon-blue mb-1">
-                          {"{Location}"}
-                        </code>
-                        <span className="text-xs text-muted-foreground">
-                          Displays your current city and country.
-                        </span>
-                      </div>
-                      <div className="p-3 rounded-lg glass border border-white/10">
-                        <code className="block text-neon-blue mb-1">
-                          {"{Date}"}
-                        </code>
-                        <span className="text-xs text-muted-foreground">
-                          Shows the current date and time.
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </section>
-
 
             {/* Productivity Tips Section */}
-            <section id="productivity-tips" className="scroll-mt-6">
-              <Card className="glass-strong border-white/20">
-                <CardHeader>
-                  <CardTitle className="text-xl sm:text-2xl flex items-center space-x-3">
-                    <span className="text-2xl">💡</span>
-                    <span>Productivity Tips</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="border-l-4 border-neon-blue pl-4">
-                      <h4 className="font-medium mb-1">Use the Two-Minute Rule</h4>
-                      <p className="text-sm text-muted-foreground">If a task takes less than two minutes, do it immediately instead of adding it to your task list (opposite of the <a className="text-neon-purple" href="https://www.todoist.com/productivity-methods/eat-the-frog">eat-the-frog</a> method).</p>
-                    </div>
-                    <div className="border-l-4 border-neon-green pl-4">
-                      <h4 className="font-medium mb-1">Batch Similar Tasks</h4>
-                      <p className="text-sm text-muted-foreground">Group similar activities together to maintain focus and reduce context switching.</p>
-                    </div>
-                    <div className="border-l-4 border-neon-purple pl-4">
-                      <h4 className="font-medium mb-1">Regular Review Sessions</h4>
-                      <p className="text-sm text-muted-foreground">Set aside time weekly to review your notes and tasks, archiving completed items.</p>
+            <section id="productivity-tips" className="scroll-mt-24 space-y-6">
+              <div className="space-y-2">
+                <h2 className="text-3xl font-black tracking-tight">Productivity</h2>
+                <p className="text-muted-foreground font-medium">Core philosophies for high-output work.</p>
+              </div>
+
+              <div className="space-y-4">
+                {[
+                  { title: "The 2-Minute Rule", desc: "If a task takes less than 2 minutes, do it now. Action over organization." },
+                  { title: "Time Batching", desc: "Group similar tasks together. Context switching is the primary enemy of deep focus." },
+                  { title: "Pomodoro Protocol", desc: "Commit to 25-minute sprints of absolute focus, followed by a 5-minute break." }
+                ].map((tip, i) => (
+                  <div key={i} className="flex space-x-6 p-6 rounded-2xl glass border border-white/5 hover:border-primary/20 transition-all group">
+                    <div className="w-1.5 h-auto bg-primary rounded-full opacity-20 group-hover:opacity-100 transition-opacity" />
+                    <div className="space-y-1">
+                      <h4 className="font-black text-xs uppercase tracking-widest text-primary/80">{tip.title}</h4>
+                      <p className="text-xs text-muted-foreground leading-relaxed">{tip.desc}</p>
                     </div>
                   </div>
-                </CardContent>
-                <p className=" p-4 text-sm text-muted-foreground">Find some more (generated) advice <a href="/Productivity Tips.pdf" className="text-neon-purple">here.</a></p>
-              </Card>
+                ))}
+              </div>
             </section>
 
-            {/* Remaining sections with placeholder content */}
-            <section id="shortcuts" className="scroll-mt-6">
-              <Card className="glass-strong border-white/20">
-                <CardHeader>
-                  <CardTitle className="text-xl sm:text-2xl flex items-center space-x-3">
-                    <span className="text-2xl">⌨️</span>
-                    <span>Keyboard Shortcuts</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground mb-4"><span className="text-bold text-neon-purple">Ctrl (Meta) + Enter</span> | Save note from editor</p>
-                  <p className="text-muted-foreground mb-4"><span className="text-bold text-neon-purple">Ctrl (Meta) + E</span> | Toggle evaluation mode</p>
-                </CardContent>
-              </Card>
+            {/* Support */}
+            <section id="support" className="scroll-mt-24 pt-12 border-t border-white/5 text-center space-y-8">
+              <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto shadow-inner">
+                <Heart className="w-10 h-10 text-primary" />
+              </div>
+              <div className="max-w-md mx-auto space-y-3">
+                <h3 className="text-2xl font-black tracking-tight">Support my Work</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">Donating a small amount helps keep this project alive and supports future development. Every contribution is deeply appreciated.</p>
+              </div>
+              <div className="flex justify-center scale-110">
+                <Support />
+              </div>
             </section>
-
-            <section id="export-import" className="scroll-mt-6">
-              <Card className="glass-strong border-white/20">
-                <CardHeader>
-                  <CardTitle className="text-xl sm:text-2xl flex items-center space-x-3">
-                    <span className="text-2xl">📁</span>
-                    <span>Export & Import</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <ul>
-                    <li className="text-muted-foreground mb-4">Use the  <span className="inline-block"><Share /></span>  Icon to export your notes and/or tasks into various types (Text, MD or JSON). </li>
-                    <li className="text-muted-foreground mb-4">Go to Settings  <span className="inline-block"><Settings /></span>  and clear your data, or import your backups from a JSON file.</li>
-                  </ul>
-                </CardContent>
-              </Card>
-            </section>
-
-            <section id="troubleshooting" className="scroll-mt-6">
-              <Card className="glass-strong border-white/20">
-                <CardHeader>
-                  <CardTitle className="text-xl sm:text-2xl flex items-center space-x-3">
-                    <span className="text-2xl">🔧</span>
-                    <span>Troubleshooting</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground mb-4">Common issues and their solutions can be discussed on <a className="text-neon-purple" href="https://github.com/dmarakom6/NOTED./issues">Github.</a></p>
-                </CardContent>
-              </Card>
-            </section>
-            <section id="support" className="scroll-mt-6">
-              <Card className="glass-strong border-white/20">
-                <CardHeader>
-                  <CardTitle className="text-xl sm:text-2xl flex items-center space-x-3">
-                    <span className="text-2xl">🙏🏻</span>
-                    <span>Support my Work</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  Donating a small amount helps keep this project alive and supports future development. If you find NOTED. useful, consider supporting my work by pressing on this button:
-                  <span className="mt-10 ml-3">
-                    <Support />
-                  </span>
-                </CardContent>
-              </Card>
-            </section>
-          </div>
-        </div>
-        {/* Footer */}
-        <div className="mt-12 flex items-center justify-center space-x-6 text-sm text-muted-foreground">
-          <div className="flex items-center space-x-2">
-            <NotepadText className="h-4 w-4" />
-            <span className="font-bold text-neon-purple">NOTED.</span>
           </div>
         </div>
       </div>

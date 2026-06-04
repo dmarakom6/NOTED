@@ -1,11 +1,9 @@
 
-import { useState } from "react";
 import { Task } from "@/pages/Index";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Trash, Plus, FileText } from "lucide-react";
+import { Trash2, FileText, CheckCircle2, ListTodo } from "lucide-react";
 
 interface TasksListProps {
   tasks: Task[];
@@ -19,103 +17,90 @@ export const TasksList = ({ tasks, onToggleTask, onDeleteTask, onConvertToNote, 
   const pendingTasks = tasks.filter(task => !task.completed);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 animate-fade-in">
       {/* Today's Progress */}
-      <Card className="glass-strong border-white/20 animate-slide-up">
-        <CardHeader>
-          <CardTitle className="text-lg flex items-center justify-between">
-            Today's Progress
-            <span className="text-2xl font-bold text-neon-green">
-              {completedToday.length}
+      <Card className="glass-strong border-white/10 dark:border-white/5 shadow-lg overflow-hidden">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-sm font-bold uppercase tracking-wider text-muted-foreground flex items-center justify-between">
+            Progress
+            <span className="text-xs font-black bg-primary/10 text-primary px-2 py-0.5 rounded-full">
+              {completedToday.length} Done
             </span>
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-sm text-muted-foreground">
-            {completedToday.length === 0 
-              ? "No tasks completed yet today" 
-              : `${completedToday.length} task${completedToday.length === 1 ? '' : 's'} completed!`
-            }
-          </div>
-          {completedToday.length > 0 && (
-            <div className="mt-3 space-y-2">
-              {completedToday.slice(0, 3).map(task => (
-                <div key={task.id} className="flex items-center space-x-2 text-sm">
-                  <div className="w-2 h-2 bg-neon-green rounded-full"></div>
-                  <span className="text-muted-foreground line-through">
-                    {task.content.length > 30 ? `${task.content.slice(0, 30)}...` : task.content}
-                  </span>
-                </div>
-              ))}
-              {completedToday.length > 3 && (
-                <div className="text-xs text-muted-foreground">
-                  +{completedToday.length - 3} more
-                </div>
-              )}
+          {completedToday.length === 0 ? (
+            <p className="text-xs text-muted-foreground italic">No tasks completed yet today.</p>
+          ) : (
+            <div className="space-y-2">
+              <div className="w-full bg-muted/50 dark:bg-muted/30 h-1.5 rounded-full overflow-hidden border border-black/5 dark:border-white/5">
+                <div 
+                  className="bg-primary h-full transition-all duration-500" 
+                  style={{ width: `${Math.min(100, (completedToday.length / (tasks.length || 1)) * 100)}%` }}
+                />
+              </div>
+              <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-wide">
+                Keep it up! {completedToday.length} task{completedToday.length === 1 ? '' : 's'} crushed.
+              </p>
             </div>
           )}
         </CardContent>
       </Card>
 
       {/* Pending Tasks */}
-      <Card className="glass-strong border-white/20 animate-slide-up">
-        <CardHeader>
-          <CardTitle className="text-lg flex items-center justify-between">
-            Tasks
-            <span className="text-sm font-normal text-muted-foreground">
-              {pendingTasks.length} pending
-            </span>
+      <Card className="glass-strong border-white/10 dark:border-white/5 shadow-lg min-h-[300px] flex flex-col">
+        <CardHeader className="pb-3 border-b border-white/5">
+          <CardTitle className="text-sm font-bold uppercase tracking-wider text-muted-foreground flex items-center justify-between">
+            To-Do
+            <ListTodo className="w-4 h-4 opacity-20" />
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-3">
+        <CardContent className="flex-1 p-0 overflow-y-auto max-h-[400px] scrollbar-thin">
           {pendingTasks.length === 0 ? (
-            <div className="text-center py-6 text-muted-foreground">
-              <div className="space-y-2">
-                <div className="w-12 h-12 mx-auto bg-gradient-to-br from-neon-purple/20 to-neon-blue/20 rounded-xl flex items-center justify-center">
-                  <Plus className="w-6 h-6 opacity-50" />
-                </div>
-                <p className="text-sm">No pending tasks</p>
-              </div>
+            <div className="flex flex-col items-center justify-center py-12 text-center px-4">
+              <CheckCircle2 className="w-10 h-10 text-primary opacity-20 mb-3" />
+              <p className="text-sm font-medium text-muted-foreground/50">All caught up!</p>
             </div>
           ) : (
-            pendingTasks.map((task) => (
-              <div
-                key={task.id}
-                className="flex items-start space-x-3 p-3 rounded-lg glass hover:glass-strong transition-all duration-200 group"
-              >
-                <Checkbox
-                  checked={task.completed}
-                  onCheckedChange={() => onToggleTask(task.id)}
-                  className="mt-1"
-                />
-                <div className="flex-1 min-w-0">
-                  <p className={`text-sm ${task.completed ? 'line-through text-muted-foreground' : ''}`}>
-                    {task.content}
-                  </p>
-                </div>
-                <div className="flex space-x-1">
-                  {onConvertToNote && (
+            <div className="divide-y divide-black/5 dark:divide-white/5">
+              {pendingTasks.map((task) => (
+                <div
+                  key={task.id}
+                  className="flex items-start space-x-3 p-4 hover:bg-black/5 dark:hover:bg-white/5 transition-colors group"
+                >
+                  <Checkbox
+                    checked={task.completed}
+                    onCheckedChange={() => onToggleTask(task.id)}
+                    className="mt-0.5 border-muted-foreground/50 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium leading-tight break-words text-foreground/90">
+                      {task.content}
+                    </p>
+                  </div>
+                  <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    {onConvertToNote && (
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        onClick={() => onConvertToNote(task.content, task.id)}
+                        className="h-7 w-7 text-muted-foreground hover:text-primary"
+                      >
+                        <FileText className="h-3.5 w-3.5" />
+                      </Button>
+                    )}
                     <Button
                       size="icon"
                       variant="ghost"
-                      onClick={() => onConvertToNote(task.content, task.id)}
-                      className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 hover:bg-blue-500/20 hover:text-blue-400"
-                      title="Convert to note"
+                      onClick={() => onDeleteTask(task.id)}
+                      className="h-7 w-7 text-muted-foreground hover:text-destructive"
                     >
-                      <FileText className="h-3 w-3" />
+                      <Trash2 className="h-3.5 w-3.5" />
                     </Button>
-                  )}
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    onClick={() => onDeleteTask(task.id)}
-                    className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 hover:bg-destructive/20 hover:text-destructive"
-                  >
-                    <Trash className="h-3 w-3" />
-                  </Button>
+                  </div>
                 </div>
-              </div>
-            ))
+              ))}
+            </div>
           )}
         </CardContent>
       </Card>

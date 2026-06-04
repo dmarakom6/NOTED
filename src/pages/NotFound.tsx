@@ -1,5 +1,8 @@
-import { useLocation } from "react-router-dom";
+
+import { useLocation, Link } from "react-router-dom";
 import { useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft, Ghost } from "lucide-react";
 
 const NotFound = () => {
   const location = useLocation();
@@ -12,14 +15,28 @@ const NotFound = () => {
   }, [location.pathname]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br flex items-center justify-center from-background via-background to-purple-900/20">
-      <div className="text-center">
-        <h1 className="text-4xl text-violet-500 font-bold mb-4">404</h1>
-        <p className="text-xl text-gray-300 mb-4">Kowalski, Status Report.</p>
-        <p className="text-m text-gray-600 mb-4">This page was not found, sir.</p>
-        <a href="/" className="text-blue-500 hover:text-blue-700 underline">
-          Take me back home
-        </a>
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6 text-center">
+      <div className="relative mb-8">
+        <div className="absolute inset-0 bg-primary/20 blur-3xl rounded-full scale-150 animate-pulse" />
+        <Ghost className="w-24 h-24 text-primary relative animate-bounce" />
+      </div>
+      
+      <div className="space-y-2 mb-12">
+        <h1 className="text-6xl font-black tracking-tighter">404</h1>
+        <p className="text-xl font-bold uppercase tracking-widest text-muted-foreground/60">Page Lost in Space</p>
+      </div>
+
+      <div className="max-w-xs mx-auto space-y-6">
+        <p className="text-sm text-muted-foreground leading-relaxed">
+          Kowalski, status report. This page seems to have vanished from our records, sir.
+        </p>
+        
+        <Link to="/">
+          <Button className="rounded-full px-8 font-black uppercase tracking-widest text-xs h-12 shadow-xl shadow-primary/20">
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Go Back Home
+          </Button>
+        </Link>
       </div>
     </div>
   );

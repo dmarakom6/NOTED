@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ShareExport } from "./ShareExport";
 import { Settings } from "./Settings";
-import { Share, Settings as SettingsIcon, Play, BookOpen } from "lucide-react";
+import { Share, Settings as SettingsIcon, Play, BookOpen, Sparkles } from "lucide-react";
 import { Note, Task } from "@/pages/Index";
 import { Link } from "react-router-dom";
 import { Support } from "./Support";
@@ -20,65 +20,67 @@ export const Header = ({ onFocusMode, notes, tasks }: HeaderProps) => {
 
   return (
     <>
-      <header className="sm:static fixed top-0 left-0 right-0 z-50 glass rounded-none sm:rounded-2xl sm:mx-4 sm:mt-4 p-3 sm:p-6 animate-slide-down">
-        <div className="flex items-center justify-center sm:justify-between flex-wrap gap-2 sm:gap-4">
-          {/* Logo - hidden on mobile, shown on desktop */}
-          <div className="hidden sm:block min-w-0">
-            <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-neon-purple to-neon-blue bg-clip-text text-transparent">
-              NOTED.
-            </h1>
-            <p className="text-muted-foreground text-sm sm:text-base">Your productivity companion</p>
+      <header className="sticky top-0 z-50 w-full glass border-b border-white/10 px-4 py-3 sm:py-4">
+        <div className="container mx-auto flex items-center justify-between gap-4">
+          <div className="flex items-center space-x-2">
+            <img src="nobgnoted.png" className="w-12 h-12" alt="NOTED. logo" />
+            <div>
+              <h1 className="text-xl font-black text-foreground">
+                NOTED.
+              </h1>
+            </div>
           </div>
-          
-          {/* Buttons - always centered */}
-          <div className="flex items-center space-x-1 sm:space-x-3 flex-shrink-0">
-            <Link to="/docs">
-              <Button variant="outline" className="glass text-xs sm:text-sm whitespace-nowrap px-2 sm:px-4 h-8 sm:h-10">
-                <BookOpen className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
-                <span className="hidden sm:inline">Docs</span>
+
+          <div className="flex items-center space-x-1 sm:space-x-2">
+            <Link to="/docs" className="hidden sm:block">
+              <Button variant="ghost" size="sm" className="text-xs">
+                <BookOpen className="w-4 h-4 mr-2" />
+                Docs
               </Button>
             </Link>
-            
-            <Button 
+
+            <Button
               onClick={onFocusMode}
-              className="bg-gradient-to-r from-neon-purple to-neon-blue hover:scale-105 transition-all duration-200 text-xs sm:text-sm whitespace-nowrap px-2 sm:px-4 h-8 sm:h-10"
+              variant="default"
+              size="sm"
+              className="text-xs font-bold shadow-md shadow-primary/20"
             >
-              <Play className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
-              <span className="hidden sm:inline">Focus</span>
+              <Play className="w-3 h-3 mr-1.5" />
+              Focus
             </Button>
-            
-            <Button 
-              variant="outline" 
-              className="glass text-xs sm:text-sm whitespace-nowrap px-2 sm:px-4 h-8 sm:h-10"
+
+            <Button
+              variant="ghost"
+              size="sm"
+              className="hidden sm:flex text-xs"
               onClick={() => setShowShareExport(true)}
             >
-              <Share className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
-              <span className="hidden sm:inline">Share</span>
+              <Share className="w-4 h-4 mr-2" />
+              Share
             </Button>
 
-              <Support/>
+            <Support />
 
-            <Button 
-              variant="outline" 
-              size="icon" 
-              className="glass flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10"
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 sm:h-9 sm:w-9"
               onClick={() => setShowSettings(true)}
             >
-              <SettingsIcon className="w-3 h-3 sm:w-4 sm:h-4" />
+              <SettingsIcon className="w-4 h-4" />
             </Button>
           </div>
         </div>
       </header>
 
-      <ShareExport 
+      <ShareExport
         isOpen={showShareExport}
         onClose={() => setShowShareExport(false)}
         notes={notes}
         tasks={tasks}
       />
 
-      
-      <Settings 
+      <Settings
         isOpen={showSettings}
         onClose={() => setShowSettings(false)}
       />

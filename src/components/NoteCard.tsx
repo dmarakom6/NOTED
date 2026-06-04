@@ -3,8 +3,7 @@ import { useState } from "react";
 import { Note } from "@/pages/Index";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Trash, List, Pin, MoreHorizontal } from "lucide-react";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Trash, List, Pin, MoreHorizontal, Pencil, Check, X } from "lucide-react";
 
 interface NoteCardProps {
   note: Note;
@@ -41,172 +40,105 @@ export const NoteCard = ({ note, onDelete, onUpdate, onConvertToTask, onTogglePi
     }
   };
 
-  const handleConvertToTask = () => {
-    if (onConvertToTask) {
-      onConvertToTask(note.content, note.id);
-    }
-  };
-
-  const handleTogglePin = () => {
-    if (onTogglePin) {
-      onTogglePin(note.id);
-    }
-  };
-
-  const handleViewNote = () => {
-    if (onViewNote && !isEditing) {
-      onViewNote(note);
-    }
-  };
-
-  const handleDoubleClick = () => {
-    if (!isEditing) {
-      setIsEditing(true);
-    }
-  };
-
   return (
     <div
-      className={`glass-strong rounded-2xl p-4 hover:scale-[1.02] transition-all duration-300 group relative overflow-hidden ${className} ${note.pinned ? 'ring-2 ring-yellow-400/50' : ''}`}
+      className={`group relative glass rounded-xl p-4 transition-all duration-300 hover:shadow-lg hover:shadow-black/5 dark:hover:shadow-white/5 border border-white/10 dark:border-white/5 ${note.pinned ? 'ring-1 ring-yellow-400/30 bg-yellow-400/5' : ''} ${className}`}
       style={{
-        borderLeft: `4px solid ${note.color}`,
+        borderLeft: `3px solid ${note.color}`,
         ...style
       }}
     >
-      {/* Subtle glow effect */}
-      <div
-        className="absolute inset-0 opacity-5 rounded-2xl"
-        style={{ backgroundColor: note.color }}
-      />
-
-      {/* Pin indicator */}
+      {/* Pin Icon */}
       {note.pinned && (
         <div className="absolute top-2 right-2">
-          <Pin className="h-4 w-4 text-yellow-400" fill="currentColor" />
+          <Pin className="h-3 w-3 text-yellow-500 fill-yellow-500" />
         </div>
       )}
 
-      <div className="relative z-10">
+      <div className="space-y-3">
         {isEditing ? (
-          <div className="space-y-3">
+          <div className="space-y-2">
             <Textarea
               value={editContent}
               onChange={(e) => setEditContent(e.target.value)}
               onKeyDown={handleKeyDown}
-              className="glass border-white/20 resize-none min-h-[100px]"
+              className="min-h-[100px] text-sm glass bg-white/5"
               autoFocus
             />
-            <div className="flex justify-end space-x-2">
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={handleCancel}
-                className="glass"
-              >
-                Cancel
+            <div className="flex justify-end space-x-1">
+              <Button size="icon" variant="ghost" onClick={handleCancel} className="h-7 w-7 text-muted-foreground">
+                <X className="h-3.5 w-3.5" />
               </Button>
-              <Button
-                size="sm"
-                onClick={handleSave}
-                className="bg-gradient-to-r from-neon-purple to-neon-blue"
-              >
-                Save
+              <Button size="icon" variant="ghost" onClick={handleSave} className="h-7 w-7 text-primary">
+                <Check className="h-3.5 w-3.5" />
               </Button>
             </div>
           </div>
         ) : (
           <>
-            <div
-              className="whitespace-pre-wrap text-sm leading-relaxed cursor-pointer hover:text-foreground/80 transition-colors break-words overflow-hidden"
-              style={{
-                maxHeight: '200px',
-                wordWrap: 'break-word',
-                overflowWrap: 'break-word',
-                hyphens: 'auto',
-                overflowY: 'scroll'
-              }}
-              onClick={handleViewNote}
-              onDoubleClick={handleDoubleClick}
+            <div 
+              className="text-sm leading-relaxed cursor-pointer break-words"
+              onClick={() => onViewNote?.(note)}
             >
-              <div className="pr-2 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
+              <div className="max-h-[150px] overflow-hidden overflow-y-auto scrollbar-thin pr-1">
                 {note.evaluatedContent ? (
-                  <div dangerouslySetInnerHTML={{ __html: note.evaluatedContent instanceof Array ? note.evaluatedContent[0] : note.evaluatedContent }} />
+                  <div 
+                    className="prose prose-sm dark:prose-invert max-w-none"
+                    dangerouslySetInnerHTML={{ __html: note.evaluatedContent instanceof Array ? note.evaluatedContent[0] : note.evaluatedContent }} 
+                  />
                 ) : (
-                  note.content
+                  <p className="whitespace-pre-wrap">{note.content}</p>
                 )}
               </div>
             </div>
 
-            <div className="flex items-center justify-between mt-4 pt-3 border-t border-white/10">
-              <span className="text-xs text-muted-foreground">
-                {note.createdAt.toLocaleDateString()}
+            <div className="flex items-center justify-between pt-2 border-t border-white/5">
+              <span className="text-[10px] text-muted-foreground/60 font-bold uppercase tracking-wider">
+                {note.createdAt.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
               </span>
 
-              {/* Desktop buttons - hidden on mobile */}
-              <div className="hidden sm:flex space-x-1">
+              <div className="flex items-center space-x-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
                 {onTogglePin && (
                   <Button
                     size="icon"
                     variant="ghost"
-                    onClick={handleTogglePin}
-                    className={`opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 hover:bg-yellow-500/20 hover:text-yellow-400`}
-                    title={note.pinned ? "Unpin note" : "Pin note"}
+                    onClick={() => onTogglePin(note.id)}
+                    className={`h-7 w-7 ${note.pinned ? 'text-yellow-500' : 'text-muted-foreground hover:text-yellow-500'}`}
                   >
-                    <Pin className="h-3 w-3" fill={note.pinned ? "currentColor" : "none"} />
+                    <Pin className="h-3.5 w-3.5" fill={note.pinned ? "currentColor" : "none"} />
                   </Button>
                 )}
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  onClick={() => setIsEditing(true)}
+                  className="h-7 w-7 text-muted-foreground hover:text-primary"
+                >
+                  <Pencil className="h-3.5 w-3.5" />
+                </Button>
                 {onConvertToTask && (
                   <Button
                     size="icon"
                     variant="ghost"
-                    onClick={handleConvertToTask}
-                    className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 hover:bg-green-500/20 hover:text-green-400"
-                    title="Convert to task"
+                    onClick={() => onConvertToTask(note.content, note.id)}
+                    className="h-7 w-7 text-muted-foreground hover:text-green-500"
                   >
-                    <List className="h-3 w-3" />
+                    <List className="h-3.5 w-3.5" />
                   </Button>
                 )}
                 <Button
                   size="icon"
                   variant="ghost"
                   onClick={() => onDelete(note.id)}
-                  className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 hover:bg-destructive/20 hover:text-destructive"
+                  className="h-7 w-7 text-muted-foreground hover:text-destructive"
                 >
-                  <Trash className="h-3 w-3" />
+                  <Trash className="h-3.5 w-3.5" />
                 </Button>
               </div>
 
-              {/* Mobile dropdown menu */}
-              <div className="sm:hidden">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
-                      <MoreHorizontal className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="glass">
-                    {onTogglePin && (
-                      <DropdownMenuItem onClick={handleTogglePin} className="text-yellow-400">
-                        <Pin className="h-4 w-4 mr-2" fill={note.pinned ? "currentColor" : "none"} />
-                        {note.pinned ? "Unpin note" : "Pin note"}
-                      </DropdownMenuItem>
-                    )}
-                    {onConvertToTask && (
-                      <DropdownMenuItem onClick={handleConvertToTask} className="text-green-400">
-                        <List className="h-4 w-4 mr-2" />
-                        Convert to task
-                      </DropdownMenuItem>
-                    )}
-                    <DropdownMenuItem onClick={() => onDelete(note.id)} className="text-destructive">
-                      <Trash className="h-4 w-4 mr-2" />
-                      Delete note
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+              {/* Mobile menu */}
+              <div className="sm:hidden group-hover:hidden">
+                 <MoreHorizontal className="h-3.5 w-3.5 text-muted-foreground/40" />
               </div>
             </div>
           </>

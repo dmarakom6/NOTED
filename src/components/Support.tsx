@@ -57,7 +57,7 @@ export const Support = () => {
           <div>
             <h3 className="text-lg font-semibold mb-2 text-glow">Support NOTED.</h3>
             <p className="text-sm text-muted-foreground">
-              Help keep this project free and open source
+              Show some love to the open source community.
             </p>
           </div>
 
@@ -91,11 +91,10 @@ export const Support = () => {
                   href={link.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className={`flex items-center justify-between p-3 rounded-lg transition-all duration-300 group ${
-                    link.highlight 
-                      ? 'bg-gradient-to-r from-neon-purple/20 to-neon-blue/20 border border-neon-purple/30 hover:border-neon-purple/50' 
-                      : 'glass hover:glass-strong'
-                  }`}
+                  className={`flex items-center justify-between p-3 rounded-lg transition-all duration-300 group ${link.highlight
+                    ? 'bg-gradient-to-r from-neon-purple/20 to-neon-blue/20 border border-neon-purple/30 hover:border-neon-purple/50'
+                    : 'glass hover:glass-strong'
+                    }`}
                 >
                   <div className="flex items-center space-x-3">
                     <link.icon className={`h-5 w-5 ${link.highlight ? 'text-neon-purple' : 'text-neon-green'}`} />
